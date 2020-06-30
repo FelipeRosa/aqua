@@ -7,6 +7,15 @@ export type EditorTab = {
     }
 }
 
+export const emptyEditorTab = (): EditorTab => ({
+    label: 'Unnamed',
+    content: [''],
+    cursor: {
+        column: 0,
+        line: 0,
+    },
+})
+
 export type EditorState = {
     font: {
         charWidth: number
@@ -62,4 +71,8 @@ export type Msg =
     | {
           type: 'editor-tab-click'
           index: number
+      }
+    | {
+          type: 'editor-new-tab'
+          tab: Partial<EditorTab>
       }

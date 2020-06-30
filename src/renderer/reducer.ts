@@ -1,4 +1,4 @@
-import { AppState, Msg } from './entities'
+import { AppState, emptyEditorTab, Msg } from './entities'
 import { activeTab, realCursorX } from './services/editor'
 
 export function reducer(prevState: AppState, msg: Msg): AppState {
@@ -143,6 +143,21 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             if (msg.index < editor.tabs.length) {
                 editor.activeTabIndex = msg.index
             }
+
+            return nextState
+        }
+
+        case 'editor-new-tab': {
+            const nextState = { ...prevState }
+            const { editor } = nextState
+
+            editor.tabs.push({
+                ...emptyEditorTab(),
+                ...msg.tab,
+            })
+
+            // tslint:disable-next-line:no-console
+            console.log(editor.tabs)
 
             return nextState
         }
