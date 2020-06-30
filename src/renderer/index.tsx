@@ -7,21 +7,46 @@ import { AppStateContext } from './context'
 import { initialAppState } from './entities'
 import './index.css'
 import { reducer } from './reducer'
+import { activeTab } from './services/editor'
 
 const App = () => {
     const [state, dispatch] = useReducer(reducer, initialAppState())
 
     useEffect(() => {
-        ipcRenderer.on('main-msg', (_e, msg: MainMessage) => {
-            switch (msg.type) {
-                case 'new-tab':
-                    dispatch({ type: 'editor-new-tab', tab: msg.arg })
-                    break
-            }
-        })
+        ipcRenderer.on(
+            'main-msg.new-tab',
+            (_e, msg: MainMessage<'new-tab'>) => {
+                dispatch({ type: 'editor-new-tab', tab: msg.tabInitialState })
+
+                ipcRenderer.send('renderer-msg.editor-new-tab', null)
+            },
+        )
+        ipcRenderer.on(
+            'main-msg.get-current-tab',
+            (_e, msg: MainMessage<'get-current-tab'>) => {
+                ipcRenderer.send(
+                    'renderer-msg.get-current-tab',
+                    activeTab(state.editor),
+                )
+            },
+        )
+        ipcRenderer.on(
+            'main-msg.update-current-tab',
+            (_e, msg: MainMessage<'update-current-tab'>) => {
+                dispatch({
+                    type: 'editor-update-tab',
+                    index: state.editor.activeTabIndex,
+                    tab: msg.updatedTab,
+                })
+
+                ipcRenderer.send('renderer-msg.update-current-tab', null)
+            },
+        )
 
         return () => {
-            ipcRenderer.removeAllListeners('main-msg')
+            ipcRenderer.removeAllListeners('main-msg.new-tab')
+            ipcRenderer.removeAllListeners('main-msg.get-current-tab')
+            ipcRenderer.removeAllListeners('main-msg.update-current-tab')
         }
     })
 

@@ -1,5 +1,5 @@
 export type EditorTab = {
-    label: string
+    label: string | null
     content: string[]
     cursor: {
         column: number
@@ -8,7 +8,7 @@ export type EditorTab = {
 }
 
 export const emptyEditorTab = (): EditorTab => ({
-    label: 'Unnamed',
+    label: null,
     content: [''],
     cursor: {
         column: 0,
@@ -63,5 +63,10 @@ export type Msg =
       }
     | {
           type: 'editor-new-tab'
+          tab: Partial<EditorTab>
+      }
+    | {
+          type: 'editor-update-tab'
+          index: number
           tab: Partial<EditorTab>
       }

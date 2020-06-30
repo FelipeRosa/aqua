@@ -21,7 +21,10 @@ app.whenReady().then(() => {
                     label: 'New',
                     accelerator: 'Ctrl+N',
                     click: () => {
-                        sendToRenderer(window, { type: 'new-tab', arg: {} })
+                        sendToRenderer(window, {
+                            type: 'new-tab',
+                            tabInitialState: {},
+                        })
                     },
                 },
                 {
@@ -42,7 +45,39 @@ app.whenReady().then(() => {
 
                         sendToRenderer(window, {
                             type: 'new-tab',
-                            arg: { label: filePath, content: fileLines },
+                            tabInitialState: {
+                                label: filePath,
+                                content: fileLines,
+                            },
+                        })
+                    },
+                },
+                {
+                    label: 'Save',
+                    accelerator: 'Ctrl+S',
+                    click: () => {
+                        sendToRenderer(window, {
+                            type: 'get-current-tab',
+                        }).then((tab) => {
+                            if (tab === null) {
+                                return
+                            }
+
+                            const filePath =
+                                tab.label ||
+                                dialog.showSaveDialogSync(window, {
+                                    properties: ['showOverwriteConfirmation'],
+                                })
+
+                            if (filePath) {
+                                const fileContents = tab.content.join('\n')
+                                fs.writeFileSync(filePath, fileContents)
+
+                                sendToRenderer(window, {
+                                    type: 'update-current-tab',
+                                    updatedTab: { label: filePath },
+                                })
+                            }
                         })
                     },
                 },

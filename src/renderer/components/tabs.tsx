@@ -21,7 +21,7 @@ export const Tabs = () => {
                     }`}
                     onClick={() => onTabClick(tabIndex)}
                 >
-                    {tab.label}
+                    {tab.label || 'Unnamed'}
                 </div>
             ))}
         </div>

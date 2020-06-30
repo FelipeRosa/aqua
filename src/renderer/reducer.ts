@@ -159,6 +159,20 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             return nextState
         }
+
+        case 'editor-update-tab': {
+            if (msg.index < 0 || msg.index >= prevState.editor.tabs.length) {
+                break
+            }
+
+            const nextState = { ...prevState }
+            nextState.editor.tabs[msg.index] = {
+                ...prevState.editor.tabs[msg.index],
+                ...msg.tab,
+            }
+
+            return nextState
+        }
     }
 
     return prevState
