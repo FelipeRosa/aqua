@@ -6,26 +6,6 @@ import { initialAppState } from './entities'
 import './index.css'
 import { reducer } from './reducer'
 
-function charWidth(fontFamily: string, fontSize: number): number {
-    const el = document.createElement('span')
-    document.body.appendChild(el)
-
-    el.style.fontFamily = fontFamily
-    el.style.fontSize = `${fontSize}px`
-    el.style.height = 'auto'
-    el.style.width = 'auto'
-    el.style.position = 'absolute'
-    el.style.whiteSpace = 'no-wrap'
-
-    el.innerHTML = 'm'
-
-    const width = el.offsetWidth
-
-    document.body.removeChild(el)
-
-    return width
-}
-
 const App = () => {
     const [state, dispatch] = useReducer(reducer, initialAppState())
 

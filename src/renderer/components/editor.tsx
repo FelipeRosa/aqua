@@ -2,6 +2,7 @@ import React, { useContext, useRef } from 'react'
 import { AppStateContext } from '../context'
 import { Cursor } from './cursor'
 import './editor.css'
+import { Tabs } from './tabs'
 
 export const Editor = () => {
     const {
@@ -15,6 +16,10 @@ export const Editor = () => {
         switch (e.keyCode) {
             case 8:
                 dispatch({ type: 'cursor-remove' })
+                break
+
+            case 13:
+                dispatch({ type: 'cursor-new-line' })
                 break
 
             case 39:
@@ -58,31 +63,35 @@ export const Editor = () => {
     }
 
     return (
-        <div className="editor-content" tabIndex={0} onFocus={onFocus}>
-            <textarea
-                ref={textareaRef}
-                style={{
-                    position: 'absolute',
-                    left: -25,
-                    top: -25,
-                    width: 10,
-                    height: 10,
-                }}
-                onKeyDown={onKeyDown}
-                onInput={onInput}
-            />
+        <div className="editor">
+            <Tabs />
 
-            <Cursor />
+            <div className="editor-content" tabIndex={0} onFocus={onFocus}>
+                <textarea
+                    ref={textareaRef}
+                    style={{
+                        position: 'absolute',
+                        left: -25,
+                        top: -25,
+                        width: 10,
+                        height: 10,
+                    }}
+                    onKeyDown={onKeyDown}
+                    onInput={onInput}
+                />
 
-            {editor.content.map((line, lineIndex) => (
-                <div
-                    key={lineIndex}
-                    className="editor-line"
-                    style={{ height: editor.font.lineHeight }}
-                >
-                    {line}
-                </div>
-            ))}
+                <Cursor />
+
+                {editor.content.map((line, lineIndex) => (
+                    <div
+                        key={lineIndex}
+                        className="editor-line"
+                        style={{ height: editor.font.lineHeight }}
+                    >
+                        {line}
+                    </div>
+                ))}
+            </div>
         </div>
     )
 }

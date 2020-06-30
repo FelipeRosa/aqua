@@ -1,6 +1,13 @@
+.editor {
+}
+
+.editor-tabs {
+    height: 60px;
+}
+
 .editor-content {
-    display: block;
-    font: 16px 'Fira Code';
+    position: relative;
+    font: 16px 'Fira Code', monospace;
 }
 .editor-content:focus {
     outline: none;

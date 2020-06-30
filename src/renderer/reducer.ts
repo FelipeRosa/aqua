@@ -11,9 +11,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             switch (msg.direction) {
                 case 'left':
-                    if (cursor.x > 0) {
-                        cursor.x--
-                    }
+                    cursor.x = Math.max(0, realCursorX(nextState.editor) - 1)
                     break
 
                 case 'right':
@@ -73,10 +71,51 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                     content[cursor.y].slice(cursorX)
 
                 cursor.x = cursorX - 1
+            } else if (cursor.y > 0) {
+                const preLines = content.slice(0, cursor.y - 1)
+                const posLines = content.slice(cursor.y + 1)
+
+                nextState.editor.content = [
+                    ...preLines,
+                    content[cursor.y - 1] + content[cursor.y].trimLeft(),
+                    ...posLines,
+                ]
+
+                nextState.editor.cursor.x = content[cursor.y - 1].length
+                nextState.editor.cursor.y--
+
+                return nextState
             }
 
-            // tslint:disable-next-line:no-console
-            console.log(content)
+            return nextState
+        }
+
+        case 'cursor-new-line': {
+            const nextState = { ...prevState }
+            const {
+                editor: { content, cursor },
+            } = nextState
+
+            const cursorX = realCursorX(nextState.editor)
+
+            const preLines = content.slice(0, cursor.y)
+            const posLines = content.slice(cursor.y + 1)
+
+            // compute previous line indentation
+            const preSpacesMatch = content[cursor.y].match(/^\s+/)
+            const preSpaces = preSpacesMatch ? preSpacesMatch[0] : ''
+
+            nextState.editor.content = [
+                ...preLines,
+                content[cursor.y].slice(0, cursorX),
+                // add indentation from previous line
+                preSpaces + content[cursor.y].slice(cursorX),
+                ...posLines,
+            ]
+
+            // set cursor x to match the computed indentation
+            nextState.editor.cursor.x = preSpaces.length
+            nextState.editor.cursor.y++
 
             return nextState
         }

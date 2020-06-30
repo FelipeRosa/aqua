@@ -42,3 +42,6 @@ export type Msg =
     | {
           type: 'cursor-remove'
       }
+    | {
+          type: 'cursor-new-line'
+      }
