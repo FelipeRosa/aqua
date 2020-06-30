@@ -7,7 +7,7 @@ import { Tabs } from './tabs'
 
 export const Editor = () => {
     const {
-        state: { editor },
+        state: { theme, editor },
         dispatch,
     } = useContext(AppStateContext)
 
@@ -69,38 +69,67 @@ export const Editor = () => {
     }
 
     const activeTab = editorService.activeTab(editor)
-    const content = activeTab ? activeTab.content : []
+
+    const editorStyle: React.CSSProperties = {
+        background: theme.editor.backgroundColor,
+        color: theme.editor.textColor,
+    }
+
+    const editorContentStyle: React.CSSProperties = {
+        background: theme.editor.contentBackgroundColor,
+        borderTop: '1px solid ' + theme.editor.contentBorderTopColor,
+    }
+
+    const lineStyle = (isCurrent: boolean): React.CSSProperties => {
+        const style: React.CSSProperties = {}
+        style.height = editor.font.lineHeight
+
+        if (isCurrent) {
+            style.background = theme.editor.currentLineColor
+        }
+
+        return style
+    }
 
     return (
-        <div className="editor">
+        <div className="editor" style={editorStyle}>
             <Tabs />
 
-            <div className="editor-content" tabIndex={0} onFocus={onFocus}>
-                <textarea
-                    ref={textareaRef}
-                    style={{
-                        position: 'absolute',
-                        left: -25,
-                        top: -25,
-                        width: 10,
-                        height: 10,
-                    }}
-                    onKeyDown={onKeyDown}
-                    onInput={onInput}
-                />
+            {activeTab && (
+                <div
+                    className="editor-content"
+                    style={editorContentStyle}
+                    tabIndex={0}
+                    onFocus={onFocus}
+                >
+                    <textarea
+                        ref={textareaRef}
+                        style={{
+                            position: 'absolute',
+                            left: -25,
+                            top: -25,
+                            width: 10,
+                            height: 10,
+                        }}
+                        onKeyDown={onKeyDown}
+                        onInput={onInput}
+                    />
 
-                {activeTab && <Cursor tab={activeTab} />}
+                    <Cursor tab={activeTab} color={theme.editor.cursorColor} />
 
-                {content.map((line, lineIndex) => (
-                    <div
-                        key={lineIndex}
-                        className="editor-line"
-                        style={{ height: editor.font.lineHeight }}
-                    >
-                        {line}
-                    </div>
-                ))}
-            </div>
+                    {activeTab.content.map((line, lineIndex) => (
+                        <div
+                            key={lineIndex}
+                            className="editor-line"
+                            style={lineStyle(
+                                lineIndex === activeTab.cursor.line,
+                            )}
+                        >
+                            {line}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     )
 }

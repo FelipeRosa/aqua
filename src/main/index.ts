@@ -31,7 +31,10 @@ app.whenReady().then(() => {
                     label: 'Open',
                     accelerator: 'Ctrl+O',
                     click: () => {
-                        const dialogPaths = dialog.showOpenDialogSync({})
+                        const dialogPaths = dialog.showOpenDialogSync(
+                            window,
+                            {},
+                        )
                         if (!dialogPaths || dialogPaths.length === 0) {
                             return
                         }

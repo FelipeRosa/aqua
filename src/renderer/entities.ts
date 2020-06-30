@@ -1,3 +1,16 @@
+export type ThemeState = {
+    editor: {
+        backgroundColor: string
+        textColor: string
+        cursorColor: string
+        activeTabBackgroundColor: string
+        activeTabBorderColor: string
+        currentLineColor: string
+        contentBorderTopColor: string
+        contentBackgroundColor: string
+    }
+}
+
 export type EditorTab = {
     label: string | null
     content: string[]
@@ -26,11 +39,24 @@ export type EditorState = {
 }
 
 export type AppState = {
+    theme: ThemeState
     editor: EditorState
 }
 
 export function initialAppState(): AppState {
     return {
+        theme: {
+            editor: {
+                backgroundColor: '#1f202a',
+                textColor: '#f8f8f2',
+                cursorColor: '#ffb86c',
+                activeTabBackgroundColor: '#44475a',
+                activeTabBorderColor: '#bd93f9',
+                currentLineColor: '#44475a',
+                contentBorderTopColor: '#44475a',
+                contentBackgroundColor: '#282a36',
+            },
+        },
         editor: {
             font: {
                 charWidth: 10,

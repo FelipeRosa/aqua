@@ -6,9 +6,10 @@ import { charWidth } from '../services/font'
 
 export type CursorProps = {
     tab: EditorTab
+    color: string
 }
 
-export const Cursor = ({ tab }: CursorProps) => {
+export const Cursor = ({ tab, color }: CursorProps) => {
     const {
         state: { editor },
     } = useContext(AppStateContext)
@@ -21,7 +22,7 @@ export const Cursor = ({ tab }: CursorProps) => {
         ),
         top: tab.cursor.line * editor.font.lineHeight,
         height: editor.font.lineHeight,
-        borderLeft: '2px solid black',
+        borderLeft: `2px solid ${color}`,
     }
 
     return <span style={style} className="editor-cursor" />
