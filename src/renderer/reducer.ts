@@ -52,7 +52,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                 msg.char +
                 content[cursor.y].slice(cursorX)
 
-            cursor.x = cursorX + 1
+            cursor.x = cursorX + msg.char.length
 
             return nextState
         }
@@ -119,6 +119,16 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             return nextState
         }
+
+        case 'editor-tab-click':
+            const nextState = { ...prevState }
+            const { editor } = nextState
+
+            if (msg.index < editor.tabs.length) {
+                editor.activeTabIndex = msg.index
+            }
+
+            return nextState
     }
 
     return prevState

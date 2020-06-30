@@ -8,6 +8,11 @@ export type EditorState = {
         charWidth: number
         lineHeight: number
     }
+    activeTabIndex: number
+    tabs: {
+        label: string
+        content: string[]
+    }[]
 }
 
 export type AppState = {
@@ -26,6 +31,17 @@ export function initialAppState(): AppState {
                 charWidth: 10,
                 lineHeight: 20,
             },
+            activeTabIndex: 0,
+            tabs: [
+                {
+                    label: 'a',
+                    content: [],
+                },
+                {
+                    label: 'b',
+                    content: [],
+                },
+            ],
         },
     }
 }
@@ -44,4 +60,8 @@ export type Msg =
       }
     | {
           type: 'cursor-new-line'
+      }
+    | {
+          type: 'editor-tab-click'
+          index: number
       }

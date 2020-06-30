@@ -18,6 +18,11 @@ export const Editor = () => {
                 dispatch({ type: 'cursor-remove' })
                 break
 
+            case 9:
+                // tabs are only 4 spaces for now
+                dispatch({ type: 'cursor-insert', char: '    ' })
+                break
+
             case 13:
                 dispatch({ type: 'cursor-new-line' })
                 break

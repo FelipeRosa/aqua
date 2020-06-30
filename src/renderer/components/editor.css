@@ -1,13 +1,33 @@
 .editor {
+    display: flex;
+    flex-flow: column nowrap;
 }
 
 .editor-tabs {
-    height: 60px;
+    display: flex;
+    flex-flow: row nowrap;
+    flex: 1;
+
+    min-height: 20px;
+}
+
+.editor-tab {
+    min-width: 32px;
+    padding: 4px;
+
+    border-right: 1px solid black;
+}
+.editor-tab.active {
+    border-bottom: 2px solid aqua;
 }
 
 .editor-content {
+    flex: 1;
+
     position: relative;
     font: 16px 'Fira Code', monospace;
+
+    border-top: 1px solid black;
 }
 .editor-content:focus {
     outline: none;
