@@ -1,5 +1,6 @@
 import React, { useContext, useRef } from 'react'
 import { AppStateContext } from '../context'
+import * as editorService from '../services/editor'
 import { Cursor } from './cursor'
 import './editor.css'
 import { Tabs } from './tabs'
@@ -67,6 +68,9 @@ export const Editor = () => {
         }
     }
 
+    const activeTab = editorService.activeTab(editor)
+    const content = activeTab ? activeTab.content : []
+
     return (
         <div className="editor">
             <Tabs />
@@ -85,9 +89,9 @@ export const Editor = () => {
                     onInput={onInput}
                 />
 
-                <Cursor />
+                {activeTab && <Cursor tab={activeTab} />}
 
-                {editor.content.map((line, lineIndex) => (
+                {content.map((line, lineIndex) => (
                     <div
                         key={lineIndex}
                         className="editor-line"

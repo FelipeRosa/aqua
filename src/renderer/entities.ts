@@ -1,18 +1,19 @@
-export type EditorState = {
+export type EditorTab = {
+    label: string
     content: string[]
     cursor: {
-        x: number
-        y: number
+        column: number
+        line: number
     }
+}
+
+export type EditorState = {
     font: {
         charWidth: number
         lineHeight: number
     }
     activeTabIndex: number
-    tabs: {
-        label: string
-        content: string[]
-    }[]
+    tabs: EditorTab[]
 }
 
 export type AppState = {
@@ -22,11 +23,6 @@ export type AppState = {
 export function initialAppState(): AppState {
     return {
         editor: {
-            content: ['fn main() {', '    println!("abc");', '}', ''],
-            cursor: {
-                x: 0,
-                y: 0,
-            },
             font: {
                 charWidth: 10,
                 lineHeight: 20,
@@ -35,11 +31,13 @@ export function initialAppState(): AppState {
             tabs: [
                 {
                     label: 'a',
-                    content: [],
+                    content: ['fn main() {', '    println!("abc");', '}'],
+                    cursor: { column: 0, line: 0 },
                 },
                 {
                     label: 'b',
-                    content: [],
+                    content: ['fn some_func() -> i32 {', '    1', '}'],
+                    cursor: { column: 0, line: 0 },
                 },
             ],
         },
