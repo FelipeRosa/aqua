@@ -1,8 +1,9 @@
 import { BrowserWindow } from 'electron'
+import { EditorTab } from '../renderer/entities'
 
 export type MainMessage = {
     type: 'new-tab'
-    arg: { label: string; content: string[] }
+    arg: Partial<EditorTab>
 }
 
 export const sendToRenderer = (window: BrowserWindow, msg: MainMessage) =>

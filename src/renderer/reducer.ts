@@ -155,9 +155,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                 ...emptyEditorTab(),
                 ...msg.tab,
             })
-
-            // tslint:disable-next-line:no-console
-            console.log(editor.tabs)
+            editor.activeTabIndex = editor.tabs.length - 1
 
             return nextState
         }

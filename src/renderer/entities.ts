@@ -37,18 +37,7 @@ export function initialAppState(): AppState {
                 lineHeight: 20,
             },
             activeTabIndex: 0,
-            tabs: [
-                {
-                    label: 'a',
-                    content: ['fn main() {', '    println!("abc");', '}'],
-                    cursor: { column: 0, line: 0 },
-                },
-                {
-                    label: 'b',
-                    content: ['fn some_func() -> i32 {', '    1', '}'],
-                    cursor: { column: 0, line: 0 },
-                },
-            ],
+            tabs: [],
         },
     }
 }

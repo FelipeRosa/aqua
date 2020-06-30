@@ -18,6 +18,13 @@ app.whenReady().then(() => {
             label: 'File',
             submenu: [
                 {
+                    label: 'New',
+                    accelerator: 'Ctrl+N',
+                    click: () => {
+                        sendToRenderer(window, { type: 'new-tab', arg: {} })
+                    },
+                },
+                {
                     label: 'Open',
                     accelerator: 'Ctrl+O',
                     click: () => {
