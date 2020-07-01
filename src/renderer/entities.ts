@@ -8,6 +8,7 @@ export type ThemeState = {
         currentLineColor: string
         contentBorderTopColor: string
         contentBackgroundColor: string
+        lineNumbersColor: string
     }
 }
 
@@ -55,6 +56,7 @@ export function initialAppState(): AppState {
                 currentLineColor: '#44475a',
                 contentBorderTopColor: '#44475a',
                 contentBackgroundColor: '#282a36',
+                lineNumbersColor: '#727795',
             },
         },
         editor: {

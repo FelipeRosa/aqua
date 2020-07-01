@@ -80,6 +80,21 @@ export const Editor = () => {
         borderTop: '1px solid ' + theme.editor.contentBorderTopColor,
     }
 
+    const editorLineNumbersStyle = (
+        isCurrent: boolean,
+    ): React.CSSProperties => {
+        const style: React.CSSProperties = {
+            color: theme.editor.lineNumbersColor,
+            height: editor.font.lineHeight,
+        }
+
+        if (isCurrent) {
+            style.background = theme.editor.currentLineColor
+        }
+
+        return style
+    }
+
     const lineStyle = (isCurrent: boolean): React.CSSProperties => {
         const style: React.CSSProperties = {}
         style.height = editor.font.lineHeight
@@ -96,38 +111,58 @@ export const Editor = () => {
             <Tabs />
 
             {activeTab && (
-                <div
-                    className="editor-content"
-                    style={editorContentStyle}
-                    tabIndex={0}
-                    onFocus={onFocus}
-                >
-                    <textarea
-                        ref={textareaRef}
-                        style={{
-                            position: 'absolute',
-                            left: -25,
-                            top: -25,
-                            width: 10,
-                            height: 10,
-                        }}
-                        onKeyDown={onKeyDown}
-                        onInput={onInput}
-                    />
+                <div className="editor-content-wrapper">
+                    <div className="editor-line-numbers">
+                        {activeTab.content.map((_line, lineIndex) => (
+                            <div
+                                className="editor-line-number"
+                                style={editorLineNumbersStyle(
+                                    activeTab.cursor.line === lineIndex,
+                                )}
+                            >
+                                {lineIndex}
+                            </div>
+                        ))}
+                    </div>
 
-                    <Cursor tab={activeTab} color={theme.editor.cursorColor} />
+                    <div
+                        className="editor-content"
+                        style={editorContentStyle}
+                        tabIndex={0}
+                        onFocus={onFocus}
+                    >
+                        <textarea
+                            ref={textareaRef}
+                            style={{
+                                position: 'absolute',
+                                left: -25,
+                                top: -25,
+                                width: 10,
+                                height: 10,
+                            }}
+                            onKeyDown={onKeyDown}
+                            onInput={onInput}
+                        />
 
-                    {activeTab.content.map((line, lineIndex) => (
-                        <div
-                            key={lineIndex}
-                            className="editor-line"
-                            style={lineStyle(
-                                lineIndex === activeTab.cursor.line,
-                            )}
-                        >
-                            {line}
-                        </div>
-                    ))}
+                        <Cursor
+                            tab={activeTab}
+                            color={theme.editor.cursorColor}
+                        />
+
+                        {activeTab.content.map((line, lineIndex) => (
+                            <div>
+                                <div
+                                    key={lineIndex}
+                                    className="editor-line"
+                                    style={lineStyle(
+                                        lineIndex === activeTab.cursor.line,
+                                    )}
+                                >
+                                    {line}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>
