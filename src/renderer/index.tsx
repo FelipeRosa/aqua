@@ -7,7 +7,7 @@ import { AppStateContext } from './context'
 import { initialAppState } from './entities'
 import './index.css'
 import { reducer } from './reducer'
-import { activeTab } from './services/editor'
+import EditorService from './services/editor'
 
 const App = () => {
     const [state, dispatch] = useReducer(reducer, initialAppState())
@@ -26,7 +26,7 @@ const App = () => {
             (_e, msg: MainMessage<'get-current-tab'>) => {
                 ipcRenderer.send(
                     'renderer-msg.get-current-tab',
-                    activeTab(state.editor),
+                    EditorService.activeTab(state.editor),
                 )
             },
         )

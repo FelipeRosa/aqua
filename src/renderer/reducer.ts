@@ -1,5 +1,5 @@
 import { AppState, emptyEditorTab, Msg } from './entities'
-import { activeTab } from './services/editor'
+import EditorService from './services/editor'
 import TabService from './services/tab'
 
 export function reducer(prevState: AppState, msg: Msg): AppState {
@@ -8,7 +8,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            const tab = activeTab(editor)
+            const tab = EditorService.activeTab(editor)
             if (tab === null) {
                 return prevState
             }
@@ -22,7 +22,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            const tab = activeTab(nextState.editor)
+            const tab = EditorService.activeTab(nextState.editor)
             if (tab === null) {
                 return prevState
             }
@@ -45,7 +45,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            const tab = activeTab(editor)
+            const tab = EditorService.activeTab(editor)
             if (tab === null) {
                 return prevState
             }
@@ -83,7 +83,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            const tab = activeTab(editor)
+            const tab = EditorService.activeTab(editor)
             if (tab === null) {
                 return prevState
             }

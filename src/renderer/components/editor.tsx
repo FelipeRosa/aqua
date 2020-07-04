@@ -1,6 +1,6 @@
 import React, { useContext, useRef } from 'react'
 import { AppStateContext } from '../context'
-import * as editorService from '../services/editor'
+import EditorService from '../services/editor'
 import { Cursor } from './cursor'
 import './editor.css'
 import { Tabs } from './tabs'
@@ -11,7 +11,7 @@ export const Editor = () => {
         dispatch,
     } = useContext(AppStateContext)
 
-    const activeTab = editorService.activeTab(editor)
+    const activeTab = EditorService.activeTab(editor)
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         let handled = true

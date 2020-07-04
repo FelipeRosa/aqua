@@ -1,12 +1,13 @@
 import { EditorState, EditorTab } from '../entities'
 
-export const activeTab = ({
-    activeTabIndex,
-    tabs,
-}: EditorState): EditorTab | null => {
-    if (activeTabIndex < tabs.length && activeTabIndex >= 0) {
-        return tabs[activeTabIndex]
-    }
+export default class EditorService {
+    public static activeTab(editor: EditorState): EditorTab | null {
+        const { activeTabIndex, tabs } = editor
 
-    return null
+        if (activeTabIndex < tabs.length && activeTabIndex >= 0) {
+            return tabs[activeTabIndex]
+        }
+
+        return null
+    }
 }
