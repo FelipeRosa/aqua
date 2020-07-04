@@ -1,4 +1,4 @@
-import { AppState, emptyEditorTab, Msg } from './entities'
+import { AppState, Msg } from './entities'
 import EditorService from './services/editor'
 import TabService from './services/tab'
 
@@ -67,11 +67,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            if (msg.index < 0 || msg.index >= editor.tabs.length) {
-                return prevState
-            }
-
-            editor.activeTabIndex = msg.index
+            EditorService.setActiveTab(editor, msg.index)
 
             return nextState
         }
@@ -80,35 +76,29 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            editor.tabs.push({
-                ...emptyEditorTab(),
-                ...msg.tab,
-            })
-            editor.activeTabIndex = editor.tabs.length - 1
+            EditorService.newTab(editor, msg.tab)
 
             return nextState
         }
 
         case 'editor-update-tab': {
-            if (msg.index < 0 || msg.index >= prevState.editor.tabs.length) {
-                return prevState
-            }
-
             const nextState = { ...prevState }
-            nextState.editor.tabs[msg.index] = {
-                ...prevState.editor.tabs[msg.index],
-                ...msg.tab,
+            const { editor } = nextState
+
+            if (EditorService.updateTab(editor, msg.index, msg.tab)) {
+                return nextState
             }
 
-            return nextState
+            return prevState
         }
 
         case 'editor-update-size': {
             const nextState = { ...prevState }
-            nextState.editor.size = {
+
+            EditorService.updateSize(nextState.editor, {
                 width: msg.newSize[0],
                 height: msg.newSize[1],
-            }
+            })
 
             // TODO: need to ajust the scroll for each tab when editor is
             //       resized to make the cursor always centered

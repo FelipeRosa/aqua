@@ -1,4 +1,4 @@
-import { Direction, EditorState, EditorTab } from '../entities'
+import { CursorMoveDirection, EditorState, EditorTab } from '../entities'
 import FontService from './font'
 
 type TabServiceConsParams = {
@@ -12,7 +12,7 @@ export default class TabService {
         this.editor = editor
     }
 
-    public moveCursor(tab: EditorTab, direction: Direction) {
+    public moveCursor(tab: EditorTab, direction: CursorMoveDirection) {
         switch (direction) {
             case 'left':
                 this._moveCursorLeft(tab)

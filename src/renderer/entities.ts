@@ -1,5 +1,3 @@
-export type Direction = 'left' | 'right' | 'up' | 'down'
-
 export type ThemeState = {
     editor: {
         backgroundColor: string
@@ -14,17 +12,14 @@ export type ThemeState = {
     }
 }
 
+export type TabCursor = { column: number; line: number }
+export type CursorMoveDirection = 'left' | 'right' | 'up' | 'down'
+export type TabScroll = { x: number; y: number }
 export type EditorTab = {
     label: string | null
     content: string[]
-    cursor: {
-        column: number
-        line: number
-    }
-    scroll: {
-        x: number
-        y: number
-    }
+    cursor: TabCursor
+    scroll: TabScroll
 }
 
 export const emptyEditorTab = (): EditorTab => ({
@@ -40,19 +35,18 @@ export const emptyEditorTab = (): EditorTab => ({
     },
 })
 
+export type EditorFont = {
+    family: string
+    size: number
+    charWidth: number
+    lineHeight: number
+}
+export type EditorSize = { width: number; height: number }
 export type EditorState = {
-    font: {
-        family: string
-        size: number
-        charWidth: number
-        lineHeight: number
-    }
+    font: EditorFont
     activeTabIndex: number
     tabs: EditorTab[]
-    size: {
-        width: number
-        height: number
-    }
+    size: EditorSize
 }
 
 export type AppState = {
@@ -95,7 +89,7 @@ export function initialAppState(): AppState {
 export type Msg =
     | {
           type: 'cursor-move'
-          direction: Direction
+          direction: CursorMoveDirection
       }
     | {
           type: 'cursor-insert'
