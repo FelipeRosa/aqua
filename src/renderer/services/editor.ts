@@ -10,7 +10,3 @@ export const activeTab = ({
 
     return null
 }
-
-export const realCursorX = (tab: EditorTab): number => {
-    return Math.min(tab.cursor.column, tab.content[tab.cursor.line].length)
-}

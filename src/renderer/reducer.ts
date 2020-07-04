@@ -1,158 +1,35 @@
 import { AppState, emptyEditorTab, Msg } from './entities'
-import { activeTab, realCursorX } from './services/editor'
-import { charWidth } from './services/font'
+import { activeTab } from './services/editor'
+import TabService from './services/tab'
 
 export function reducer(prevState: AppState, msg: Msg): AppState {
     switch (msg.type) {
         case 'cursor-move': {
             const nextState = { ...prevState }
+            const { editor } = nextState
 
-            const tab = activeTab(nextState.editor)
+            const tab = activeTab(editor)
             if (tab === null) {
-                break
+                return prevState
             }
 
-            const { cursor, content } = tab
-
-            switch (msg.direction) {
-                case 'left': {
-                    cursor.column = Math.max(0, realCursorX(tab) - 1)
-
-                    const line = tab.content[cursor.line]
-
-                    const cursorSubstr = line.substr(0, cursor.column)
-                    const cursorLeft = charWidth('Fira Code', 16, cursorSubstr)
-
-                    if (cursorLeft < tab.scroll.x) {
-                        tab.scroll.x = cursorLeft
-                    }
-
-                    break
-                }
-
-                case 'right': {
-                    if (
-                        cursor.line < content.length &&
-                        cursor.column < content[cursor.line].length
-                    ) {
-                        cursor.column++
-
-                        const line = tab.content[cursor.line]
-
-                        // We need to take the editor line numbers width into
-                        // account here.
-                        const contentWidth = prevState.editor.size.width - 48
-
-                        const cursorSubstr = line.substr(0, cursor.column + 1)
-                        const cursorRight = charWidth(
-                            'Fira Code',
-                            16,
-                            // Add a space if we reached the last character
-                            // so the scroll will be set to after it.
-                            cursor.column === line.length
-                                ? cursorSubstr + ' '
-                                : cursorSubstr,
-                        )
-
-                        if (cursorRight > tab.scroll.x + contentWidth) {
-                            tab.scroll.x = cursorRight - contentWidth
-                        }
-                    }
-
-                    break
-                }
-
-                case 'down': {
-                    if (cursor.line < content.length - 1) {
-                        cursor.line++
-
-                        const cursorBottom =
-                            (cursor.line + 1) * prevState.editor.font.lineHeight
-
-                        // We need to take the height of the tabs <div> into account (32px).
-                        const contentHeight = prevState.editor.size.height - 32
-
-                        if (cursorBottom > tab.scroll.y + contentHeight) {
-                            tab.scroll.y = cursorBottom - contentHeight
-                        }
-
-                        const contentWidth = prevState.editor.size.width - 48
-                        const cursorColumn = Math.max(0, realCursorX(tab) - 1)
-
-                        const line = tab.content[cursor.line]
-
-                        const cursorSubstr = line.substr(0, cursorColumn)
-                        const cursorLeft = charWidth(
-                            'Fira Code',
-                            16,
-                            cursorSubstr,
-                        )
-
-                        if (
-                            cursorLeft < tab.scroll.x ||
-                            cursorLeft > tab.scroll.x + contentWidth
-                        ) {
-                            tab.scroll.x = cursorLeft
-                        }
-                    }
-
-                    break
-                }
-
-                case 'up': {
-                    if (cursor.line > 0) {
-                        cursor.line--
-
-                        const cursorTop =
-                            cursor.line * prevState.editor.font.lineHeight
-
-                        // Same as above: We need to take the height of the tabs <div> into account (32px).
-                        const contentHeight = prevState.editor.size.height - 32
-
-                        if (
-                            cursorTop < tab.scroll.y ||
-                            cursorTop > tab.scroll.y + contentHeight
-                        ) {
-                            tab.scroll.y = cursorTop
-                        }
-
-                        const contentWidth = prevState.editor.size.width - 48
-                        const cursorColumn = Math.max(0, realCursorX(tab) - 1)
-
-                        const line = tab.content[cursor.line]
-
-                        const cursorSubstr = line.substr(0, cursorColumn)
-                        const cursorLeft = charWidth(
-                            'Fira Code',
-                            16,
-                            cursorSubstr,
-                        )
-
-                        if (
-                            cursorLeft < tab.scroll.x ||
-                            cursorLeft > tab.scroll.x + contentWidth
-                        ) {
-                            tab.scroll.x = cursorLeft
-                        }
-                    }
-                    break
-                }
-            }
+            new TabService({ editor }).moveCursor(tab, msg.direction)
 
             return nextState
         }
 
         case 'cursor-insert': {
             const nextState = { ...prevState }
+            const { editor } = nextState
 
             const tab = activeTab(nextState.editor)
             if (tab === null) {
-                break
+                return prevState
             }
 
             const { cursor, content } = tab
 
-            const cursorX = realCursorX(tab)
+            const cursorX = new TabService({ editor }).realCursorX(tab)
 
             content[cursor.line] =
                 content[cursor.line].slice(0, cursorX) +
@@ -166,15 +43,16 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
         case 'cursor-remove': {
             const nextState = { ...prevState }
+            const { editor } = nextState
 
-            const tab = activeTab(nextState.editor)
+            const tab = activeTab(editor)
             if (tab === null) {
-                break
+                return prevState
             }
 
             const { cursor, content } = tab
 
-            const cursorX = realCursorX(tab)
+            const cursorX = new TabService({ editor }).realCursorX(tab)
 
             if (cursorX > 0) {
                 content[cursor.line] =
@@ -194,8 +72,8 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
                 cursor.column = content[cursor.line - 1].length
                 cursor.line--
-
-                return nextState
+            } else {
+                return prevState
             }
 
             return nextState
@@ -203,15 +81,16 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
         case 'cursor-new-line': {
             const nextState = { ...prevState }
+            const { editor } = nextState
 
-            const tab = activeTab(nextState.editor)
+            const tab = activeTab(editor)
             if (tab === null) {
-                break
+                return prevState
             }
 
             const { cursor, content } = tab
 
-            const cursorX = realCursorX(tab)
+            const cursorX = new TabService({ editor }).realCursorX(tab)
 
             const preLines = content.slice(0, cursor.line)
             const posLines = content.slice(cursor.line + 1)
@@ -239,9 +118,11 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            if (msg.index < editor.tabs.length) {
-                editor.activeTabIndex = msg.index
+            if (msg.index < 0 || msg.index >= editor.tabs.length) {
+                return prevState
             }
+
+            editor.activeTabIndex = msg.index
 
             return nextState
         }
@@ -261,7 +142,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
         case 'editor-update-tab': {
             if (msg.index < 0 || msg.index >= prevState.editor.tabs.length) {
-                break
+                return prevState
             }
 
             const nextState = { ...prevState }

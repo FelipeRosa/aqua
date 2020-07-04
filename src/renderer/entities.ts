@@ -1,3 +1,5 @@
+export type Direction = 'left' | 'right' | 'up' | 'down'
+
 export type ThemeState = {
     editor: {
         backgroundColor: string
@@ -40,6 +42,8 @@ export const emptyEditorTab = (): EditorTab => ({
 
 export type EditorState = {
     font: {
+        family: string
+        size: number
         charWidth: number
         lineHeight: number
     }
@@ -73,6 +77,8 @@ export function initialAppState(): AppState {
         },
         editor: {
             font: {
+                family: 'Fira Code',
+                size: 16,
                 charWidth: 10,
                 lineHeight: 20,
             },
@@ -89,7 +95,7 @@ export function initialAppState(): AppState {
 export type Msg =
     | {
           type: 'cursor-move'
-          direction: 'left' | 'right' | 'up' | 'down'
+          direction: Direction
       }
     | {
           type: 'cursor-insert'
