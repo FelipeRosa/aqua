@@ -30,12 +30,35 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                 case 'down':
                     if (cursor.line < content.length - 1) {
                         cursor.line++
+
+                        const cursorBottom =
+                            (cursor.line + 1) * prevState.editor.font.lineHeight
+
+                        // We need to take the height of the tabs <div> into account (32px).
+                        const contentHeight = prevState.editor.size.height - 32
+
+                        if (cursorBottom > tab.scroll.y + contentHeight) {
+                            tab.scroll.y = cursorBottom - contentHeight
+                        }
                     }
                     break
 
                 case 'up':
                     if (cursor.line > 0) {
                         cursor.line--
+
+                        const cursorTop =
+                            cursor.line * prevState.editor.font.lineHeight
+
+                        // Same as above: We need to take the height of the tabs <div> into account (32px).
+                        const contentHeight = prevState.editor.size.height - 32
+
+                        if (
+                            cursorTop < tab.scroll.y ||
+                            cursorTop > tab.scroll.y + contentHeight
+                        ) {
+                            tab.scroll.y = cursorTop
+                        }
                     }
                     break
             }
@@ -170,6 +193,19 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                 ...prevState.editor.tabs[msg.index],
                 ...msg.tab,
             }
+
+            return nextState
+        }
+
+        case 'editor-update-size': {
+            const nextState = { ...prevState }
+            nextState.editor.size = {
+                width: msg.newSize[0],
+                height: msg.newSize[1],
+            }
+
+            // TODO: need to ajust the scroll for each tab when editor is
+            //       resized to make the cursor always centered
 
             return nextState
         }

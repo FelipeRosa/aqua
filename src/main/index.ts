@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, Menu } from 'electron'
 import * as fs from 'fs'
+import { debounce } from '../internal/debounce'
 import { sendToRenderer } from './messages'
 
 app.whenReady().then(() => {
@@ -10,6 +11,17 @@ app.whenReady().then(() => {
             nodeIntegration: true,
         },
     })
+
+    const debouncedWindowResized = debounce(
+        () =>
+            sendToRenderer(window, {
+                type: 'window-resized',
+                newSize: window.getContentSize(),
+            }),
+        100,
+    )
+    window.on('resize', () => debouncedWindowResized())
+    window.webContents.on('did-finish-load', () => debouncedWindowResized())
 
     window.loadFile('./dist/index.html')
 

@@ -42,13 +42,22 @@ const App = () => {
                 ipcRenderer.send('renderer-msg.update-current-tab', null)
             },
         )
+        ipcRenderer.on(
+            'main-msg.window-resized',
+            (_e, msg: MainMessage<'window-resized'>) => {
+                dispatch({ type: 'editor-update-size', newSize: msg.newSize })
+
+                ipcRenderer.send('renderer-msg.window-resized', null)
+            },
+        )
 
         return () => {
             ipcRenderer.removeAllListeners('main-msg.new-tab')
             ipcRenderer.removeAllListeners('main-msg.get-current-tab')
             ipcRenderer.removeAllListeners('main-msg.update-current-tab')
+            ipcRenderer.removeAllListeners('main-msg.window-resized')
         }
-    })
+    }, [])
 
     return (
         <AppStateContext.Provider value={{ state, dispatch }}>

@@ -14,7 +14,10 @@
 
     font: 16px 'Cantarell';
 
+    width: 100%;
     max-height: 32px;
+
+    z-index: 2;
 }
 
 .editor-tab {
@@ -28,7 +31,9 @@
     flex: 1;
     order: 2;
 
-    border-top: 1px solid black;
+    z-index: 1;
+
+    position: relative;
 
     display: flex;
     flex-flow: row nowrap;

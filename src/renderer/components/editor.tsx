@@ -11,6 +11,8 @@ export const Editor = () => {
         dispatch,
     } = useContext(AppStateContext)
 
+    const activeTab = editorService.activeTab(editor)
+
     const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         let handled = true
 
@@ -68,16 +70,21 @@ export const Editor = () => {
         }
     }
 
-    const activeTab = editorService.activeTab(editor)
-
     const editorStyle: React.CSSProperties = {
         background: theme.editor.backgroundColor,
         color: theme.editor.textColor,
+        height: activeTab
+            ? Math.max(
+                  // This needs to take the height (32px) of the tabs into account
+                  // so we don't render the editor too short.
+                  activeTab.content.length * editor.font.lineHeight + 32,
+                  editor.size.height,
+              )
+            : editor.size.height,
     }
 
     const editorContentStyle: React.CSSProperties = {
         background: theme.editor.contentBackgroundColor,
-        borderTop: '1px solid ' + theme.editor.contentBorderTopColor,
     }
 
     const editorLineNumbersStyle = (
@@ -111,7 +118,10 @@ export const Editor = () => {
             <Tabs />
 
             {activeTab && (
-                <div className="editor-content-wrapper">
+                <div
+                    className="editor-content-wrapper"
+                    style={{ top: activeTab ? -activeTab.scroll.y : 0 }}
+                >
                     <div className="editor-line-numbers">
                         {activeTab.content.map((_line, lineIndex) => (
                             <div
