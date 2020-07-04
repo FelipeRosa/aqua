@@ -1,5 +1,5 @@
 import { Direction, EditorState, EditorTab } from '../entities'
-import { charWidth } from './font'
+import FontService from './font'
 
 type TabServiceConsParams = {
     editor: EditorState
@@ -47,7 +47,11 @@ export default class TabService {
         const line = content[cursor.line]
 
         const cursorSubstr = line.substr(0, cursor.column)
-        const cursorLeft = charWidth(font.family, font.size, cursorSubstr)
+        const cursorLeft = FontService.charWidth(
+            font.family,
+            font.size,
+            cursorSubstr,
+        )
 
         if (cursorLeft < scroll.x) {
             scroll.x = cursorLeft
@@ -71,7 +75,7 @@ export default class TabService {
             const contentWidth = size.width - 48
 
             const cursorSubstr = line.substr(0, cursor.column + 1)
-            const cursorRight = charWidth(
+            const cursorRight = FontService.charWidth(
                 font.family,
                 font.size,
                 // Add a space if we reached the last character
@@ -137,7 +141,11 @@ export default class TabService {
         const line = content[cursor.line]
 
         const cursorSubstr = line.substr(0, cursorColumn)
-        const cursorLeft = charWidth(font.family, font.size, cursorSubstr)
+        const cursorLeft = FontService.charWidth(
+            font.family,
+            font.size,
+            cursorSubstr,
+        )
 
         if (cursorLeft < scroll.x || cursorLeft > scroll.x + contentWidth) {
             scroll.x = cursorLeft
