@@ -81,15 +81,25 @@ export const Editor = () => {
                   editor.size.height,
               )
             : editor.size.height,
+        // TODO: width should be the max tab content line width. Which would be
+        //       ideally cached when the tab content changes.
+        width: 10000,
+    }
+
+    const editorContentWrapperStyle: React.CSSProperties = {
+        top: activeTab ? -activeTab.scroll.y : 0,
     }
 
     const editorContentStyle: React.CSSProperties = {
         background: theme.editor.contentBackgroundColor,
+        left: activeTab ? -activeTab.scroll.x + 48 : 0,
     }
 
-    const editorLineNumbersStyle = (
-        isCurrent: boolean,
-    ): React.CSSProperties => {
+    const editorLineNumbersStyle: React.CSSProperties = {
+        background: theme.editor.backgroundColor,
+    }
+
+    const editorLineNumberStyle = (isCurrent: boolean): React.CSSProperties => {
         const style: React.CSSProperties = {
             color: theme.editor.lineNumbersColor,
             height: editor.font.lineHeight,
@@ -120,13 +130,16 @@ export const Editor = () => {
             {activeTab && (
                 <div
                     className="editor-content-wrapper"
-                    style={{ top: activeTab ? -activeTab.scroll.y : 0 }}
+                    style={editorContentWrapperStyle}
                 >
-                    <div className="editor-line-numbers">
+                    <div
+                        className="editor-line-numbers"
+                        style={editorLineNumbersStyle}
+                    >
                         {activeTab.content.map((_line, lineIndex) => (
                             <div
                                 className="editor-line-number"
-                                style={editorLineNumbersStyle(
+                                style={editorLineNumberStyle(
                                     activeTab.cursor.line === lineIndex,
                                 )}
                             >
