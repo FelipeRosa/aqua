@@ -130,7 +130,7 @@ export const Editor = () => {
                                     activeTab.cursor.line === lineIndex,
                                 )}
                             >
-                                {lineIndex}
+                                {lineIndex + 1}
                             </div>
                         ))}
                     </div>
