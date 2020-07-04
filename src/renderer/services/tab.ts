@@ -38,6 +38,74 @@ export default class TabService {
         return Math.min(cursor.column, content[cursor.line].length)
     }
 
+    public insertAtCursor(tab: EditorTab, s: string) {
+        const { cursor, content } = tab
+
+        const cursorX = this.realCursorX(tab)
+
+        content[cursor.line] =
+            content[cursor.line].slice(0, cursorX) +
+            s +
+            content[cursor.line].slice(cursorX)
+
+        cursor.column = cursorX + s.length
+    }
+
+    public removeAtCursor(tab: EditorTab): boolean {
+        const { cursor, content } = tab
+
+        const cursorX = this.realCursorX(tab)
+
+        if (cursorX > 0) {
+            content[cursor.line] =
+                content[cursor.line].slice(0, cursorX - 1) +
+                content[cursor.line].slice(cursorX)
+
+            cursor.column = cursorX - 1
+        } else if (cursor.line > 0) {
+            const preLines = content.slice(0, cursor.line - 1)
+            const posLines = content.slice(cursor.line + 1)
+
+            tab.content = [
+                ...preLines,
+                content[cursor.line - 1] + content[cursor.line].trimLeft(),
+                ...posLines,
+            ]
+
+            cursor.column = content[cursor.line - 1].length
+            cursor.line--
+        } else {
+            return false
+        }
+
+        return true
+    }
+
+    public newLineAtCursor(tab: EditorTab) {
+        const { cursor, content } = tab
+
+        const cursorX = this.realCursorX(tab)
+
+        const preLines = content.slice(0, cursor.line)
+        const posLines = content.slice(cursor.line + 1)
+
+        // compute previous line indentation
+        const preSpacesMatch = content[cursor.line].match(/^\s+/)
+        const preSpaces = preSpacesMatch ? preSpacesMatch[0] : ''
+
+        tab.content = [
+            ...preLines,
+            content[cursor.line].slice(0, cursorX),
+            // add indentation from previous line
+            preSpaces + content[cursor.line].slice(cursorX),
+            ...posLines,
+        ]
+
+        // set cursor x to match the computed indentation
+        cursor.column = preSpaces.length
+        cursor.line++
+    }
+
     private _moveCursorLeft(tab: EditorTab) {
         const { font } = this.editor
         const { cursor, content, scroll } = tab
