@@ -1,3 +1,6 @@
+import Editor from './entities/editor'
+import { CursorMoveDirection } from './entities/tab-cursor'
+
 export type ThemeState = {
     editor: {
         backgroundColor: string
@@ -12,46 +15,9 @@ export type ThemeState = {
     }
 }
 
-export type TabCursor = { column: number; line: number }
-export type CursorMoveDirection = 'left' | 'right' | 'up' | 'down'
-export type TabScroll = { x: number; y: number }
-export type EditorTab = {
-    label: string | null
-    content: string[]
-    cursor: TabCursor
-    scroll: TabScroll
-}
-
-export const emptyEditorTab = (): EditorTab => ({
-    label: null,
-    content: [''],
-    cursor: {
-        column: 0,
-        line: 0,
-    },
-    scroll: {
-        x: 0,
-        y: 0,
-    },
-})
-
-export type EditorFont = {
-    family: string
-    size: number
-    charWidth: number
-    lineHeight: number
-}
-export type EditorSize = { width: number; height: number }
-export type EditorState = {
-    font: EditorFont
-    activeTabIndex: number
-    tabs: EditorTab[]
-    size: EditorSize
-}
-
 export type AppState = {
     theme: ThemeState
-    editor: EditorState
+    editor: Editor
 }
 
 export function initialAppState(): AppState {
@@ -69,20 +35,7 @@ export function initialAppState(): AppState {
                 lineNumbersColor: '#727795',
             },
         },
-        editor: {
-            font: {
-                family: 'Fira Code',
-                size: 16,
-                charWidth: 10,
-                lineHeight: 20,
-            },
-            activeTabIndex: 0,
-            tabs: [],
-            size: {
-                width: 0,
-                height: 0,
-            },
-        },
+        editor: new Editor(),
     }
 }
 
@@ -107,12 +60,18 @@ export type Msg =
       }
     | {
           type: 'editor-new-tab'
-          tab: Partial<EditorTab>
+          tab: Partial<{
+              label: string | null
+              content: string[]
+          }>
       }
     | {
           type: 'editor-update-tab'
           index: number
-          tab: Partial<EditorTab>
+          tab: Partial<{
+              label: string | null
+              content: string[]
+          }>
       }
     | {
           type: 'editor-update-size'

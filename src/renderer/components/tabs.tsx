@@ -12,8 +12,10 @@ export const Tabs = () => {
                 tabsBorderBottom,
             },
         },
-        editor: { tabs, activeTabIndex },
+        editor,
     } = state
+
+    const tabs = editor.getTabs()
 
     const onTabClick = (tabIndex: number) => {
         dispatch({ type: 'editor-tab-click', index: tabIndex })
@@ -37,10 +39,10 @@ export const Tabs = () => {
                 <div
                     key={tabIndex}
                     className="editor-tab"
-                    style={tabStyle(activeTabIndex === tabIndex)}
+                    style={tabStyle(editor.getActiveTabIndex() === tabIndex)}
                     onClick={() => onTabClick(tabIndex)}
                 >
-                    {tab.label || 'Unnamed'}
+                    {tab.getLabelText()}
                 </div>
             ))}
         </div>

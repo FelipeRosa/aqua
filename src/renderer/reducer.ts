@@ -1,6 +1,5 @@
 import { AppState, Msg } from './entities'
-import EditorService from './services/editor'
-import TabService from './services/tab'
+import EditorTab from './entities/editor-tab'
 
 export function reducer(prevState: AppState, msg: Msg): AppState {
     switch (msg.type) {
@@ -8,12 +7,12 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            const tab = EditorService.activeTab(editor)
+            const tab = editor.getActiveTab()
             if (tab === null) {
                 return prevState
             }
 
-            new TabService({ editor }).moveCursor(tab, msg.direction)
+            tab.moveCursor(msg.direction)
 
             return nextState
         }
@@ -22,12 +21,12 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            const tab = EditorService.activeTab(editor)
+            const tab = editor.getActiveTab()
             if (tab === null) {
                 return prevState
             }
 
-            new TabService({ editor }).insertAtCursor(tab, msg.char)
+            tab.insertAtCursor(msg.char)
 
             return nextState
         }
@@ -36,13 +35,12 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            const tab = EditorService.activeTab(editor)
+            const tab = editor.getActiveTab()
             if (tab === null) {
                 return prevState
             }
 
-            const tabService = new TabService({ editor })
-            if (tabService.removeAtCursor(tab)) {
+            if (tab.removeAtCursor()) {
                 return nextState
             }
 
@@ -53,12 +51,12 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            const tab = EditorService.activeTab(editor)
+            const tab = editor.getActiveTab()
             if (tab === null) {
                 return prevState
             }
 
-            new TabService({ editor }).newLineAtCursor(tab)
+            tab.newLineAtCursor()
 
             return nextState
         }
@@ -67,16 +65,27 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            EditorService.setActiveTab(editor, msg.index)
+            if (editor.setActiveTab(msg.index)) {
+                return nextState
+            }
 
-            return nextState
+            return prevState
         }
 
         case 'editor-new-tab': {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            EditorService.newTab(editor, msg.tab)
+            const tab = new EditorTab(editor)
+
+            if (msg.tab.label) {
+                tab.setLabel(msg.tab.label)
+            }
+            if (msg.tab.content) {
+                tab.getContent().setLines(msg.tab.content)
+            }
+
+            editor.addTab(tab)
 
             return nextState
         }
@@ -85,20 +94,13 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const nextState = { ...prevState }
             const { editor } = nextState
 
-            if (EditorService.updateTab(editor, msg.index, msg.tab)) {
-                return nextState
-            }
-
             return prevState
         }
 
         case 'editor-update-size': {
             const nextState = { ...prevState }
 
-            EditorService.updateSize(nextState.editor, {
-                width: msg.newSize[0],
-                height: msg.newSize[1],
-            })
+            nextState.editor.updateSize(msg.newSize[0], msg.newSize[1])
 
             // TODO: need to ajust the scroll for each tab when editor is
             //       resized to make the cursor always centered

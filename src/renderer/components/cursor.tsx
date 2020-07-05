@@ -1,8 +1,6 @@
 import React, { useContext } from 'react'
 import { AppStateContext } from '../context'
-import { EditorTab } from '../entities'
-import FontService from '../services/font'
-import TabService from '../services/tab'
+import EditorTab from '../entities/editor-tab'
 
 export type CursorProps = {
     tab: EditorTab
@@ -13,19 +11,16 @@ export const Cursor = ({ tab, color }: CursorProps) => {
     const {
         state: { editor },
     } = useContext(AppStateContext)
-    const { font } = editor
-    const { cursor, content } = tab
-
-    const tabService = new TabService({ editor })
+    const font = editor.getFont()
+    const cursor = tab.getCursor()
+    const content = tab.getContent()
 
     const style: React.CSSProperties = {
-        left: FontService.charWidth(
-            font.family,
-            font.size,
-            content[cursor.line].slice(0, tabService.realCursorX(tab)),
+        left: font.stringWidth(
+            content.getLine(cursor.getLine()).slice(0, cursor.getColumn()),
         ),
-        top: cursor.line * font.lineHeight,
-        height: font.lineHeight,
+        top: cursor.getLine() * font.getLineHeight(),
+        height: font.getLineHeight(),
         borderLeft: `2px solid ${color}`,
     }
 

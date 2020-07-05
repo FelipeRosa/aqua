@@ -1,7 +1,7 @@
 import { app, BrowserWindow, dialog, Menu } from 'electron'
 import * as fs from 'fs'
 import { debounce } from '../internal/debounce'
-import { sendToRenderer } from './messages'
+import { sendToRenderer } from '../internal/main-messages'
 
 app.whenReady().then(() => {
     const window = new BrowserWindow({
