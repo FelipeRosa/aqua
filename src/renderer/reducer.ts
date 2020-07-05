@@ -1,109 +1,177 @@
-import { AppState, Msg } from './entities'
-import EditorService from './services/editor'
-import TabService from './services/tab'
+import {
+    activeTab,
+    insertTab,
+    setActiveTabIndex,
+    setSize,
+    updateTab,
+} from './entities/editor'
+import { AppState } from './entities/state'
+import {
+    breakLineAtCursor,
+    createDefaultTab,
+    insertAtCursor,
+    moveCursor,
+    MoveCursorDirection,
+    removeAtCursor,
+} from './entities/tab'
+
+export type Msg =
+    | {
+          type: 'cursor-move'
+          direction: MoveCursorDirection
+      }
+    | {
+          type: 'cursor-insert'
+          char: string
+      }
+    | {
+          type: 'cursor-remove'
+      }
+    | {
+          type: 'cursor-new-line'
+      }
+    | {
+          type: 'editor-tab-click'
+          index: number
+      }
+    | {
+          type: 'editor-new-tab'
+          tab: Partial<{
+              label: string | null
+              content: string[]
+          }>
+      }
+    | {
+          type: 'editor-update-tab'
+          index: number
+          tab: Partial<{
+              label: string | null
+              content: string[]
+          }>
+      }
+    | {
+          type: 'editor-update-size'
+          newSize: number[]
+      }
 
 export function reducer(prevState: AppState, msg: Msg): AppState {
     switch (msg.type) {
         case 'cursor-move': {
-            const nextState = { ...prevState }
-            const { editor } = nextState
+            const { editor } = prevState
 
-            const tab = EditorService.activeTab(editor)
+            const tab = activeTab(editor)
             if (tab === null) {
                 return prevState
             }
 
-            new TabService({ editor }).moveCursor(tab, msg.direction)
+            const tabUpdate = moveCursor(tab, { direction: msg.direction })
+            const tabIndex = editor.activeTabIndex
 
-            return nextState
+            return {
+                ...prevState,
+                editor: updateTab(editor, { tabIndex, tabUpdate }),
+            }
         }
 
         case 'cursor-insert': {
-            const nextState = { ...prevState }
-            const { editor } = nextState
+            const { editor } = prevState
 
-            const tab = EditorService.activeTab(editor)
+            const tab = activeTab(editor)
             if (tab === null) {
                 return prevState
             }
 
-            new TabService({ editor }).insertAtCursor(tab, msg.char)
+            const tabUpdate = insertAtCursor(tab, { s: msg.char })
+            const tabIndex = editor.activeTabIndex
 
-            return nextState
+            return {
+                ...prevState,
+                editor: updateTab(editor, { tabIndex, tabUpdate }),
+            }
         }
 
         case 'cursor-remove': {
-            const nextState = { ...prevState }
-            const { editor } = nextState
+            const { editor } = prevState
 
-            const tab = EditorService.activeTab(editor)
+            const tab = activeTab(editor)
             if (tab === null) {
                 return prevState
             }
 
-            const tabService = new TabService({ editor })
-            if (tabService.removeAtCursor(tab)) {
-                return nextState
-            }
+            const tabUpdate = removeAtCursor(tab)
+            const tabIndex = editor.activeTabIndex
 
-            return prevState
+            return {
+                ...prevState,
+                editor: updateTab(editor, { tabIndex, tabUpdate }),
+            }
         }
 
         case 'cursor-new-line': {
-            const nextState = { ...prevState }
-            const { editor } = nextState
+            const { editor } = prevState
 
-            const tab = EditorService.activeTab(editor)
+            const tab = activeTab(editor)
             if (tab === null) {
                 return prevState
             }
 
-            new TabService({ editor }).newLineAtCursor(tab)
+            const tabUpdate = breakLineAtCursor(tab)
+            const tabIndex = editor.activeTabIndex
 
-            return nextState
+            return {
+                ...prevState,
+                editor: updateTab(editor, { tabIndex, tabUpdate }),
+            }
         }
 
         case 'editor-tab-click': {
-            const nextState = { ...prevState }
-            const { editor } = nextState
+            const { editor } = prevState
 
-            EditorService.setActiveTab(editor, msg.index)
-
-            return nextState
+            return {
+                ...prevState,
+                editor: setActiveTabIndex(editor, {
+                    activeTabIndex: msg.index,
+                }),
+            }
         }
 
         case 'editor-new-tab': {
-            const nextState = { ...prevState }
-            const { editor } = nextState
+            const { editor } = prevState
 
-            EditorService.newTab(editor, msg.tab)
-
-            return nextState
+            return {
+                ...prevState,
+                editor: insertTab(editor, {
+                    tab: {
+                        ...createDefaultTab(),
+                        ...msg.tab,
+                    },
+                }),
+            }
         }
 
         case 'editor-update-tab': {
-            const nextState = { ...prevState }
-            const { editor } = nextState
+            const { editor } = prevState
 
-            if (EditorService.updateTab(editor, msg.index, msg.tab)) {
-                return nextState
+            return {
+                ...prevState,
+                editor: updateTab(editor, {
+                    tabIndex: msg.index,
+                    tabUpdate: msg.tab,
+                }),
             }
-
-            return prevState
         }
 
         case 'editor-update-size': {
-            const nextState = { ...prevState }
-
-            EditorService.updateSize(nextState.editor, {
-                width: msg.newSize[0],
-                height: msg.newSize[1],
-            })
-
             // TODO: need to ajust the scroll for each tab when editor is
             //       resized to make the cursor always centered
+            const { editor } = prevState
 
-            return nextState
+            return {
+                ...prevState,
+                editor: setSize(editor, {
+                    size: { width: msg.newSize[0], height: msg.newSize[1] },
+                }),
+            }
         }
     }
 
