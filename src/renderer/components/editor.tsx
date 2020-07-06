@@ -1,16 +1,22 @@
 import React, { useContext, useRef } from 'react'
 import { AppStateContext } from '../context'
+import { activeTab as editorActiveTab } from '../entities/editor'
 import { Cursor } from './cursor'
 import './editor.css'
 import { Tabs } from './tabs'
 
 export const Editor = () => {
     const {
-        state: { theme, editor },
+        state: {
+            themes: { editor: editorTheme },
+            editor,
+        },
         dispatch,
     } = useContext(AppStateContext)
 
-    const activeTab = editor.getActiveTab()
+    const { font, size: editorSize } = editor
+
+    const activeTab = editorActiveTab(editor)
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         let handled = true
@@ -70,44 +76,42 @@ export const Editor = () => {
     }
 
     const editorStyle: React.CSSProperties = {
-        background: theme.editor.backgroundColor,
-        color: theme.editor.textColor,
+        background: editorTheme.backgroundColor,
+        color: editorTheme.textColor,
         height: activeTab
             ? Math.max(
                   // This needs to take the height (32px) of the tabs into account
                   // so we don't render the editor too short.
-                  activeTab.getContent().getLineCount() *
-                      editor.getFont().getLineHeight() +
-                      32,
-                  editor.getSize().height,
+                  activeTab.content.length * font.lineHeight + 32,
+                  editorSize.height,
               )
-            : editor.getSize().height,
+            : editorSize.height,
         // TODO: width should be the max tab content line width. Which would be
         //       ideally cached when the tab content changes.
         width: 10000,
     }
 
     const editorContentWrapperStyle: React.CSSProperties = {
-        top: activeTab ? -activeTab.getScroll().getY() : 0,
+        top: activeTab ? -activeTab.scroll.y : 0,
     }
 
     const editorContentStyle: React.CSSProperties = {
-        background: theme.editor.contentBackgroundColor,
-        left: activeTab ? -activeTab.getScroll().getX() + 48 : 0,
+        background: editorTheme.contentBackgroundColor,
+        left: activeTab ? -activeTab.scroll.x + 48 : 0,
     }
 
     const editorLineNumbersStyle: React.CSSProperties = {
-        background: theme.editor.backgroundColor,
+        background: editorTheme.backgroundColor,
     }
 
     const editorLineNumberStyle = (isCurrent: boolean): React.CSSProperties => {
         const style: React.CSSProperties = {
-            color: theme.editor.lineNumbersColor,
-            height: editor.getFont().getLineHeight(),
+            color: editorTheme.lineNumbersColor,
+            height: font.lineHeight,
         }
 
         if (isCurrent) {
-            style.background = theme.editor.currentLineColor
+            style.background = editorTheme.currentLineColor
         }
 
         return style
@@ -115,10 +119,10 @@ export const Editor = () => {
 
     const lineStyle = (isCurrent: boolean): React.CSSProperties => {
         const style: React.CSSProperties = {}
-        style.height = editor.getFont().getLineHeight()
+        style.height = font.lineHeight
 
         if (isCurrent) {
-            style.background = theme.editor.currentLineColor
+            style.background = editorTheme.currentLineColor
         }
 
         return style
@@ -137,20 +141,16 @@ export const Editor = () => {
                         className="editor-line-numbers"
                         style={editorLineNumbersStyle}
                     >
-                        {activeTab
-                            .getContent()
-                            .getLines()
-                            .map((_line, lineIndex) => (
-                                <div
-                                    className="editor-line-number"
-                                    style={editorLineNumberStyle(
-                                        activeTab.getCursor().getLine() ===
-                                            lineIndex,
-                                    )}
-                                >
-                                    {lineIndex + 1}
-                                </div>
-                            ))}
+                        {activeTab.content.map((_line, lineIndex) => (
+                            <div
+                                className="editor-line-number"
+                                style={editorLineNumberStyle(
+                                    activeTab.cursor.row === lineIndex,
+                                )}
+                            >
+                                {lineIndex + 1}
+                            </div>
+                        ))}
                     </div>
 
                     <div
@@ -174,26 +174,22 @@ export const Editor = () => {
 
                         <Cursor
                             tab={activeTab}
-                            color={theme.editor.cursorColor}
+                            color={editorTheme.cursorColor}
                         />
 
-                        {activeTab
-                            .getContent()
-                            .getLines()
-                            .map((line, lineIndex) => (
-                                <div>
-                                    <div
-                                        key={lineIndex}
-                                        className="editor-line"
-                                        style={lineStyle(
-                                            lineIndex ===
-                                                activeTab.getCursor().getLine(),
-                                        )}
-                                    >
-                                        {line}
-                                    </div>
+                        {activeTab.content.map((line, lineIndex) => (
+                            <div>
+                                <div
+                                    key={lineIndex}
+                                    className="editor-line"
+                                    style={lineStyle(
+                                        lineIndex === activeTab.cursor.row,
+                                    )}
+                                >
+                                    {line}
                                 </div>
-                            ))}
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}

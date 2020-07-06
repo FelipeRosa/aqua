@@ -9,15 +9,10 @@ export type StringMetrics = {
     lineHeight: number
 }
 
-export type CreateFontParams = {
-    family: string
-    size: number
-}
-
-export const createFont = ({ family, size }: CreateFontParams): Font => {
+export const createDefaultFont = (): Font => {
     const font: Font = {
-        family,
-        size,
+        family: 'Fira Code',
+        size: 16,
         lineHeight: 0,
     }
 

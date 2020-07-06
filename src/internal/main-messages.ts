@@ -1,4 +1,5 @@
 import { BrowserWindow, ipcMain } from 'electron'
+import { Tab } from '../renderer/entities/tab'
 
 export type NewTabMsg<T extends 'new-tab'> = {
     type: T
@@ -35,7 +36,7 @@ export type MainMsg<T> =
 // prettier-ignore
 export type RendererMsg<T> =
       T extends 'new-tab' ? null
-    : T extends 'get-current-tab' ? { label: string; content: string[] } | null
+    : T extends 'get-current-tab' ? Tab | null
     : T extends 'update-current-tab' ? null
     : T extends 'window-resized' ? null
     : never

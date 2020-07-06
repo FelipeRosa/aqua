@@ -1,5 +1,6 @@
 import { createContext, Dispatch } from 'react'
-import { AppState, initialAppState, Msg } from './entities'
+import { AppState, createDefaultAppState } from './entities/state'
+import { Msg } from './reducer'
 
 export type AppStateContextValue = {
     state: AppState
@@ -7,7 +8,7 @@ export type AppStateContextValue = {
 }
 
 export const AppStateContext = createContext<AppStateContextValue>({
-    state: initialAppState(),
+    state: createDefaultAppState(),
     // tslint:disable-next-line:no-empty
     dispatch: () => {},
 })

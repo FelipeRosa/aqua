@@ -4,12 +4,13 @@ import { render } from 'react-dom'
 import { MainMsg } from '../internal/main-messages'
 import { Editor } from './components/editor'
 import { AppStateContext } from './context'
-import { initialAppState } from './entities'
+import { activeTab } from './entities/editor'
+import { createDefaultAppState } from './entities/state'
 import './index.css'
 import { reducer } from './reducer'
 
 const App = () => {
-    const [state, dispatch] = useReducer(reducer, initialAppState())
+    const [state, dispatch] = useReducer(reducer, createDefaultAppState())
 
     useEffect(() => {
         ipcRenderer.on('main-msg.new-tab', (_e, msg: MainMsg<'new-tab'>) => {
@@ -22,21 +23,18 @@ const App = () => {
             (_e, _msg: MainMsg<'get-current-tab'>) => {
                 ipcRenderer.send(
                     'renderer-msg.get-current-tab',
-                    state.editor.getActiveTab(),
+                    activeTab(state.editor),
                 )
             },
         )
         ipcRenderer.on(
             'main-msg.update-current-tab',
             (_e, msg: MainMsg<'update-current-tab'>) => {
-                const activeTabIndex = state.editor.getActiveTabIndex()
-                if (activeTabIndex !== null) {
-                    dispatch({
-                        type: 'editor-update-tab',
-                        index: activeTabIndex,
-                        tab: msg.updatedTab,
-                    })
-                }
+                dispatch({
+                    type: 'editor-update-tab',
+                    index: state.editor.activeTabIndex,
+                    tab: msg.updatedTab,
+                })
 
                 ipcRenderer.send('renderer-msg.update-current-tab', null)
             },

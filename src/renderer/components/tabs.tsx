@@ -1,10 +1,11 @@
 import React, { useContext } from 'react'
 import { AppStateContext } from '../context'
+import { labelText } from '../entities/tab'
 
 export const Tabs = () => {
     const { state, dispatch } = useContext(AppStateContext)
     const {
-        theme: {
+        themes: {
             editor: {
                 activeTabBorderColor,
                 activeTabBackgroundColor,
@@ -15,7 +16,7 @@ export const Tabs = () => {
         editor,
     } = state
 
-    const tabs = editor.getTabs()
+    const { tabs } = editor
 
     const onTabClick = (tabIndex: number) => {
         dispatch({ type: 'editor-tab-click', index: tabIndex })
@@ -39,10 +40,10 @@ export const Tabs = () => {
                 <div
                     key={tabIndex}
                     className="editor-tab"
-                    style={tabStyle(editor.getActiveTabIndex() === tabIndex)}
+                    style={tabStyle(editor.activeTabIndex === tabIndex)}
                     onClick={() => onTabClick(tabIndex)}
                 >
-                    {tab.getLabelText()}
+                    {labelText(tab)}
                 </div>
             ))}
         </div>

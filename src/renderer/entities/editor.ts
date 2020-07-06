@@ -1,78 +1,108 @@
-import { createFont, Font } from './font'
-import EditorTab from './editor-tab'
+import { createDefaultFont, Font } from './font'
+import { Size } from './geom'
+import { Tab } from './tab'
 
-export default class Editor {
-    private readonly font: Font
-    private activeTabIndex: number | null
-    private tabs: EditorTab[]
-    private size: { width: number; height: number }
+export type Editor = {
+    font: Font
+    tabs: Tab[]
+    activeTabIndex: number
+    size: Size
+}
 
-    constructor() {
-        this.font = createFont({ family: 'Fira Code', size: 16 })
+export type SetActiveTabIndexParams = {
+    activeTabIndex: number
+}
 
-        this.activeTabIndex = null
-        this.tabs = []
+export type SetSizeParams = {
+    size: Size
+}
 
-        this.size = { width: 0, height: 0 }
+export type InsertTabParams = {
+    tab: Tab
+}
+
+export type UpdateTabParams = {
+    tabIndex: number
+    tabUpdate: Partial<Tab>
+}
+
+export const createDefaultEditor = (): Editor => ({
+    font: createDefaultFont(),
+    tabs: [],
+    activeTabIndex: -1,
+    size: { width: 0, height: 0 },
+})
+
+export const setActiveTabIndex = (
+    editor: Editor,
+    { activeTabIndex }: SetActiveTabIndexParams,
+): Editor => ({
+    ...editor,
+    activeTabIndex,
+})
+
+export const setSize = (editor: Editor, { size }: SetSizeParams): Editor => ({
+    ...editor,
+    size,
+    tabs: editor.tabs.map((tab) => ({
+        ...tab,
+        size,
+    })),
+})
+
+export const insertTab = (editor: Editor, { tab }: InsertTabParams): Editor => {
+    const { tabs: editorTabs, activeTabIndex } = editor
+
+    const resizedTab: Tab = {
+        ...tab,
+        size: editor.size,
     }
 
-    setActiveTab(index: number): boolean {
-        if (
-            index < 0 ||
-            index >= this.tabs.length ||
-            index === this.activeTabIndex
-        ) {
-            return false
+    const [newTabs, newActiveTabIndex] = ((): [Tab[], number] => {
+        if (editor.tabs.length === 0) {
+            return [[resizedTab], 0]
         }
 
-        this.activeTabIndex = index
-        return true
+        const tabs = [
+            ...editorTabs.splice(0, activeTabIndex + 1),
+            resizedTab,
+            ...editorTabs.splice(activeTabIndex + 1),
+        ]
+
+        return [tabs, activeTabIndex + 1]
+    })()
+
+    return {
+        ...editor,
+        tabs: newTabs,
+        activeTabIndex: newActiveTabIndex,
+    }
+}
+
+export const updateTab = (
+    editor: Editor,
+    { tabIndex, tabUpdate }: UpdateTabParams,
+): Editor => {
+    if (tabIndex < 0 || tabIndex >= editor.tabs.length) {
+        return { ...editor }
     }
 
-    getFont(): EditorFont {
-        return this.font
+    const updatedTabs = [...editor.tabs]
+    updatedTabs[tabIndex] = { ...editor.tabs[tabIndex], ...tabUpdate }
+
+    return {
+        ...editor,
+        tabs: updatedTabs,
+    }
+}
+
+export const activeTab = (editor: Editor): Tab | null => {
+    if (
+        editor.activeTabIndex < 0 ||
+        editor.activeTabIndex >= editor.tabs.length
+    ) {
+        return null
     }
 
-    getSize(): { width: number; height: number } {
-        return this.size
-    }
-
-    getTabs(): EditorTab[] {
-        return this.tabs
-    }
-
-    getActiveTabIndex(): number | null {
-        return this.activeTabIndex
-    }
-
-    getActiveTab(): EditorTab | null {
-        if (this.activeTabIndex === null) {
-            return null
-        }
-
-        return this.tabs[this.activeTabIndex]
-    }
-
-    addTab(tab: EditorTab) {
-        if (this.activeTabIndex === null) {
-            this.tabs = [tab]
-            this.activeTabIndex = 0
-        } else {
-            this.tabs = [
-                ...this.tabs.splice(0, this.activeTabIndex + 1),
-                tab,
-                ...this.tabs.splice(this.activeTabIndex + 1),
-            ]
-            this.activeTabIndex++
-        }
-    }
-
-    updateSize(width: number, height: number): boolean {
-        if (this.size.width !== width || this.size.height !== height) {
-            this.size = { width, height }
-            return true
-        }
-
-        return false
-    }
+    return editor.tabs[editor.activeTabIndex]
 }
