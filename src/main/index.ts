@@ -43,27 +43,27 @@ app.whenReady().then(() => {
                     label: 'Open',
                     accelerator: 'Ctrl+O',
                     click: () => {
-                        const dialogPaths = dialog.showOpenDialogSync(
-                            window,
-                            {},
-                        )
+                        const dialogPaths = dialog.showOpenDialogSync(window, {
+                            properties: ['openFile', 'multiSelections'],
+                        })
                         if (!dialogPaths || dialogPaths.length === 0) {
                             return
                         }
 
-                        const filePath = dialogPaths[0]
-                        const fileContents = fs.readFileSync(filePath)
+                        dialogPaths.forEach((filePath) => {
+                            const fileContents = fs.readFileSync(filePath)
 
-                        const fileLines = fileContents
-                            .toString('utf-8')
-                            .split('\n')
+                            const fileLines = fileContents
+                                .toString('utf-8')
+                                .split('\n')
 
-                        sendToRenderer(window, {
-                            type: 'new-tab',
-                            tabInitialState: {
-                                label: filePath,
-                                content: fileLines,
-                            },
+                            sendToRenderer(window, {
+                                type: 'new-tab',
+                                tabInitialState: {
+                                    label: filePath,
+                                    content: fileLines,
+                                },
+                            })
                         })
                     },
                 },

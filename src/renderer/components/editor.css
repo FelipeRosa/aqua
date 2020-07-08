@@ -21,10 +21,47 @@
 }
 
 .editor-tab {
+    display: flex;
+    align-items: center;
+
     min-width: 32px;
     padding: 8px;
 
     cursor: default;
+}
+
+.editor-tab-label {
+    display: inline-block;
+    order: 1;
+
+    margin-right: 8px;
+}
+
+.editor-tab-close {
+    display: inline-block;
+    position: relative;
+    order: 2;
+
+    height: 16px;
+    width: 16px;
+
+    background: none;
+}
+.editor-tab-close::before, .editor-tab-close::after {
+    content: '';
+    position: absolute;
+    background-color: #878aa5;
+    width: 12px;
+    height: 1px;
+    top: 7px;
+}
+.editor-tab-close::before {
+    left: 2px;
+    transform: rotate(45deg);
+}
+.editor-tab-close::after {
+    right: 2px;
+    transform: rotate(-45deg);
 }
 
 .editor-content-wrapper {
@@ -87,3 +124,4 @@
 .editor-cursor {
     position: absolute;
 }
+

@@ -79,12 +79,29 @@ export const insertTab = (editor: Editor, { tab }: InsertTabParams): Editor => {
     }
 }
 
+export const removeTab = (editor: Editor, tabIndex: number): Editor => {
+    if (tabIndex < 0 || tabIndex >= editor.tabs.length) {
+        return editor
+    }
+
+    const newTabs = [
+        ...editor.tabs.slice(0, tabIndex),
+        ...editor.tabs.slice(tabIndex + 1),
+    ]
+
+    return {
+        ...editor,
+        tabs: newTabs,
+        activeTabIndex: Math.max(0, tabIndex - 1),
+    }
+}
+
 export const updateTab = (
     editor: Editor,
     { tabIndex, tabUpdate }: UpdateTabParams,
 ): Editor => {
     if (tabIndex < 0 || tabIndex >= editor.tabs.length) {
-        return { ...editor }
+        return editor
     }
 
     const updatedTabs = [...editor.tabs]

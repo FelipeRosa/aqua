@@ -1,6 +1,7 @@
 import {
     activeTab,
     insertTab,
+    removeTab,
     setActiveTabIndex,
     setSize,
     updateTab,
@@ -32,6 +33,10 @@ export type Msg =
       }
     | {
           type: 'editor-tab-click'
+          index: number
+      }
+    | {
+          type: 'editor-tab-close'
           index: number
       }
     | {
@@ -132,6 +137,15 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                 editor: setActiveTabIndex(editor, {
                     activeTabIndex: msg.index,
                 }),
+            }
+        }
+
+        case 'editor-tab-close': {
+            const { editor } = prevState
+
+            return {
+                ...prevState,
+                editor: removeTab(editor, msg.index),
             }
         }
 

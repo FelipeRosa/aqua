@@ -18,9 +18,10 @@ export const Tabs = () => {
 
     const { tabs } = editor
 
-    const onTabClick = (tabIndex: number) => {
+    const onTabClick = (tabIndex: number) =>
         dispatch({ type: 'editor-tab-click', index: tabIndex })
-    }
+    const onTabCloseClick = (tabIndex: number) =>
+        dispatch({ type: 'editor-tab-close', index: tabIndex })
 
     const tabsStyle: React.CSSProperties = {
         background: backgroundColor,
@@ -43,7 +44,11 @@ export const Tabs = () => {
                     style={tabStyle(editor.activeTabIndex === tabIndex)}
                     onClick={() => onTabClick(tabIndex)}
                 >
-                    {labelText(tab)}
+                    <div className="editor-tab-label">{labelText(tab)}</div>
+                    <div
+                        className="editor-tab-close"
+                        onClick={() => onTabCloseClick(tabIndex)}
+                    />
                 </div>
             ))}
         </div>
