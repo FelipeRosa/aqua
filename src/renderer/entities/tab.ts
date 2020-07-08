@@ -1,3 +1,4 @@
+import path from 'path'
 import { createDefaultFont, Font, stringMetrics } from './font'
 import { Size } from './geom'
 import { breakLine, Content, insertAt, removeAt } from './tab/content'
@@ -33,7 +34,9 @@ export const createDefaultTab = (): Tab => ({
 })
 
 export const labelText = ({ label }: Tab): string =>
-    label === null ? 'Unnamed' : label
+    // TODO: move this to editor functions because we need to
+    //       consider the case when multiple tabs have the same basename
+    label === null ? 'Unnamed' : path.basename(label)
 
 export const moveCursor = (tab: Tab, { direction }: MoveCursorParams): Tab => {
     const steps = 1
