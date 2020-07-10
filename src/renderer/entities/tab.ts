@@ -38,6 +38,11 @@ export const labelText = ({ label }: Tab): string =>
     //       consider the case when multiple tabs have the same basename
     label === null ? 'Unnamed' : path.basename(label)
 
+export const adjustedCursor = (tab: Tab): Cursor => ({
+    row: tab.cursor.row,
+    column: Math.min(tab.cursor.column, tab.content[tab.cursor.row].length),
+})
+
 export const moveCursor = (tab: Tab, { direction }: MoveCursorParams): Tab => {
     const steps = 1
 
@@ -104,7 +109,8 @@ export const moveCursor = (tab: Tab, { direction }: MoveCursorParams): Tab => {
 }
 
 export const insertAtCursor = (tab: Tab, { s }: InsertAtCursorParams): Tab => {
-    const [newContent, result] = insertAt(tab.content, { s, ...tab.cursor })
+    const cursor = adjustedCursor(tab)
+    const [newContent, result] = insertAt(tab.content, { s, ...cursor })
 
     return {
         ...tab,
@@ -114,7 +120,8 @@ export const insertAtCursor = (tab: Tab, { s }: InsertAtCursorParams): Tab => {
 }
 
 export const removeAtCursor = (tab: Tab): Tab => {
-    const [newContent, result] = removeAt(tab.content, tab.cursor)
+    const cursor = adjustedCursor(tab)
+    const [newContent, result] = removeAt(tab.content, cursor)
 
     return {
         ...tab,
@@ -124,7 +131,8 @@ export const removeAtCursor = (tab: Tab): Tab => {
 }
 
 export const breakLineAtCursor = (tab: Tab): Tab => {
-    const [newContent, result] = breakLine(tab.content, tab.cursor)
+    const cursor = adjustedCursor(tab)
+    const [newContent, result] = breakLine(tab.content, cursor)
 
     return {
         ...tab,
