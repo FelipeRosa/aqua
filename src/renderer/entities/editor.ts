@@ -36,10 +36,16 @@ export const createDefaultEditor = (): Editor => ({
 export const setActiveTabIndex = (
     editor: Editor,
     { activeTabIndex }: SetActiveTabIndexParams,
-): Editor => ({
-    ...editor,
-    activeTabIndex,
-})
+): Editor => {
+    if (activeTabIndex < 0 || activeTabIndex >= editor.tabs.length) {
+        return editor
+    }
+
+    return {
+        ...editor,
+        activeTabIndex,
+    }
+}
 
 export const setSize = (editor: Editor, { size }: SetSizeParams): Editor => ({
     ...editor,
@@ -89,10 +95,15 @@ export const removeTab = (editor: Editor, tabIndex: number): Editor => {
         ...editor.tabs.slice(tabIndex + 1),
     ]
 
+    const newActiveTabIndex =
+        editor.activeTabIndex >= tabIndex
+            ? Math.max(0, editor.activeTabIndex - 1)
+            : editor.activeTabIndex
+
     return {
         ...editor,
         tabs: newTabs,
-        activeTabIndex: Math.max(0, tabIndex - 1),
+        activeTabIndex: newActiveTabIndex,
     }
 }
 

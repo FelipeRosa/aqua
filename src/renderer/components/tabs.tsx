@@ -20,8 +20,13 @@ export const Tabs = () => {
 
     const onTabClick = (tabIndex: number) =>
         dispatch({ type: 'editor-tab-click', index: tabIndex })
-    const onTabCloseClick = (tabIndex: number) =>
+    const onTabCloseClick = (
+        event: React.MouseEvent<HTMLDivElement>,
+        tabIndex: number,
+    ) => {
+        event.stopPropagation()
         dispatch({ type: 'editor-tab-close', index: tabIndex })
+    }
 
     const tabsStyle: React.CSSProperties = {
         background: backgroundColor,
@@ -47,7 +52,7 @@ export const Tabs = () => {
                     <div className="editor-tab-label">{labelText(tab)}</div>
                     <div
                         className="editor-tab-close"
-                        onClick={() => onTabCloseClick(tabIndex)}
+                        onClick={(event) => onTabCloseClick(event, tabIndex)}
                     />
                 </div>
             ))}
