@@ -7,6 +7,7 @@ import {
     setSize,
     updateTab,
 } from './entities/editor'
+import { stringMetrics } from './entities/font'
 import { AppState } from './entities/state'
 import {
     breakLineAtCursor,
@@ -35,6 +36,12 @@ export type Msg =
     | {
           type: 'editor-tab-click'
           index: number
+      }
+    | {
+          type: 'editor-tab-content-click'
+          index: number
+          clickX: number
+          clickY: number
       }
     | {
           type: 'editor-tab-close'
@@ -143,6 +150,39 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                 ...prevState,
                 editor: setActiveTabIndex(editor, {
                     activeTabIndex: msg.index,
+                }),
+            }
+        }
+
+        case 'editor-tab-content-click': {
+            const { editor } = prevState
+
+            // TODO check tab index. Refactoring this code may be a good idea.
+            const tab = editor.tabs[msg.index]
+
+            const row = Math.floor(
+                (msg.clickY + tab.scroll.y - 32) / editor.font.lineHeight,
+            )
+
+            const rowContent = tab.content[row]
+
+            let s = ''
+            for (let i = 0; i < rowContent.length; i++) {
+                const right = s + rowContent.charAt(i)
+                if (stringMetrics(editor.font, right).width > msg.clickX - 48) {
+                    break
+                }
+
+                s = right
+            }
+
+            const column = s.length
+
+            return {
+                ...prevState,
+                editor: updateTab(editor, {
+                    tabIndex: msg.index,
+                    tabUpdate: { cursor: { row, column } },
                 }),
             }
         }

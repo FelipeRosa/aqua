@@ -84,6 +84,19 @@ export const Editor = () => {
         })
     }
 
+    const onLineClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (activeTab === null) {
+            return
+        }
+
+        dispatch({
+            type: 'editor-tab-content-click',
+            index: editor.activeTabIndex,
+            clickX: e.clientX,
+            clickY: e.clientY,
+        })
+    }
+
     const editorStyle: React.CSSProperties = {
         background: editorTheme.backgroundColor,
         color: editorTheme.textColor,
@@ -157,6 +170,7 @@ export const Editor = () => {
                                 style={editorLineNumberStyle(
                                     activeTab.cursor.row === lineIndex,
                                 )}
+                                onClick={onLineClick}
                             >
                                 {lineIndex + 1}
                             </div>
@@ -195,6 +209,7 @@ export const Editor = () => {
                                     style={lineStyle(
                                         lineIndex === activeTab.cursor.row,
                                     )}
+                                    onClick={onLineClick}
                                 >
                                     {line}
                                 </div>
