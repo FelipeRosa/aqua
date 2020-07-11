@@ -134,3 +134,26 @@ export const activeTab = (editor: Editor): Tab | null => {
 
     return editor.tabs[editor.activeTabIndex]
 }
+
+export const scrollTab = (
+    editor: Editor,
+    tabIndex: number,
+    deltaX: number,
+    deltaY: number,
+): Editor => {
+    if (tabIndex < 0 || tabIndex >= editor.tabs.length) {
+        return editor
+    }
+
+    const tab = editor.tabs[tabIndex]
+
+    const contentHeight = editor.font.lineHeight * tab.content.length
+
+    const x = Math.max(0, tab.scroll.x + deltaX)
+    const y = Math.min(
+        Math.max(0, tab.scroll.y + deltaY),
+        contentHeight - tab.size.height + 32,
+    )
+
+    return updateTab(editor, { tabIndex, tabUpdate: { scroll: { x, y } } })
+}

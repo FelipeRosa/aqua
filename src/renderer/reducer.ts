@@ -2,6 +2,7 @@ import {
     activeTab,
     insertTab,
     removeTab,
+    scrollTab,
     setActiveTabIndex,
     setSize,
     updateTab,
@@ -38,6 +39,12 @@ export type Msg =
     | {
           type: 'editor-tab-close'
           index: number
+      }
+    | {
+          type: 'editor-tab-scroll'
+          index: number
+          deltaX: number
+          deltaY: number
       }
     | {
           type: 'editor-new-tab'
@@ -146,6 +153,20 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             return {
                 ...prevState,
                 editor: removeTab(editor, msg.index),
+            }
+        }
+
+        case 'editor-tab-scroll': {
+            const { editor } = prevState
+
+            return {
+                ...prevState,
+                editor: scrollTab(
+                    editor,
+                    editor.activeTabIndex,
+                    msg.deltaX,
+                    msg.deltaY,
+                ),
             }
         }
 

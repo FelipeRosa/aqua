@@ -75,6 +75,15 @@ export const Editor = () => {
         }
     }
 
+    const onMouseWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+        dispatch({
+            type: 'editor-tab-scroll',
+            index: editor.activeTabIndex,
+            deltaX: e.deltaX,
+            deltaY: e.deltaY,
+        })
+    }
+
     const editorStyle: React.CSSProperties = {
         background: editorTheme.backgroundColor,
         color: editorTheme.textColor,
@@ -136,6 +145,7 @@ export const Editor = () => {
                 <div
                     className="editor-content-wrapper"
                     style={editorContentWrapperStyle}
+                    onWheel={onMouseWheel}
                 >
                     <div
                         className="editor-line-numbers"
