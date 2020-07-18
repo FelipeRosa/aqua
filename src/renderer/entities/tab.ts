@@ -2,7 +2,7 @@ import path from 'path'
 import { createDefaultFont, Font, stringMetrics } from './font'
 import { Size } from './geom'
 import { breakLine, Content, insertAt, removeAt } from './tab/content'
-import { Cursor, moveDown, moveLeft, moveRight, moveUp } from './tab/cursor'
+import { Cursor } from './tab/cursor'
 import { Scroll } from './tab/scroll'
 
 export type Tab = {
@@ -14,14 +14,8 @@ export type Tab = {
     size: Size
 }
 
-export type MoveCursorDirection = 'left' | 'right' | 'up' | 'down'
-
 export type InsertAtCursorParams = {
     s: string
-}
-
-export type MoveCursorParams = {
-    direction: MoveCursorDirection
 }
 
 export const createDefaultTab = (): Tab => ({
@@ -43,32 +37,15 @@ export const adjustedCursor = (tab: Tab): Cursor => ({
     column: Math.min(tab.cursor.column, tab.content[tab.cursor.row].length),
 })
 
-export const moveCursor = (tab: Tab, { direction }: MoveCursorParams): Tab => {
-    const steps = 1
+export const setCursor = (tab: Tab, cursor: Cursor): Tab => {
+    const row = Math.min(Math.max(0, cursor.row), tab.content.length - 1)
 
-    const newCursor: Cursor = (() => {
-        switch (direction) {
-            case 'left':
-                return moveLeft(tab.cursor, { steps })
-            case 'right': {
-                const lineLength = tab.content[tab.cursor.row].length
+    const cursorLine = tab.content[row]
+    const column = Math.min(Math.max(0, cursor.column), cursorLine.length)
 
-                return moveRight(tab.cursor, { steps, lineLength })
-            }
-            case 'up':
-                return moveUp(tab.cursor, { steps })
-            case 'down': {
-                const lineCount = tab.content.length
-
-                return moveDown(tab.cursor, { steps, lineCount })
-            }
-        }
-
-        return { ...tab.cursor }
-    })()
+    const newCursor = { row, column }
 
     // adjust scroll
-    const cursorLine = tab.content[newCursor.row]
     const cursorSubstr = cursorLine.substr(0, newCursor.column)
 
     const cursorLeft = stringMetrics(tab.font, cursorSubstr).width
@@ -112,31 +89,38 @@ export const insertAtCursor = (tab: Tab, { s }: InsertAtCursorParams): Tab => {
     const cursor = adjustedCursor(tab)
     const [newContent, result] = insertAt(tab.content, { s, ...cursor })
 
-    return {
-        ...tab,
-        content: newContent,
-        cursor: result.newCursorPosition,
-    }
+    return setCursor(
+        {
+            ...tab,
+            content: newContent,
+        },
+        result.newCursorPosition,
+    )
 }
 
 export const removeAtCursor = (tab: Tab): Tab => {
     const cursor = adjustedCursor(tab)
     const [newContent, result] = removeAt(tab.content, cursor)
 
-    return {
-        ...tab,
-        content: newContent,
-        cursor: result.newCursorPosition,
-    }
+    return setCursor(
+        {
+            ...tab,
+            content: newContent,
+        },
+        result.newCursorPosition,
+    )
 }
 
 export const breakLineAtCursor = (tab: Tab): Tab => {
     const cursor = adjustedCursor(tab)
     const [newContent, result] = breakLine(tab.content, cursor)
 
-    return {
-        ...tab,
-        content: newContent,
-        cursor: result.newCursorPosition,
-    }
+    return setCursor(
+        {
+            ...tab,
+            content: newContent,
+            cursor: result.newCursorPosition,
+        },
+        result.newCursorPosition,
+    )
 }

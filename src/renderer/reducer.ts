@@ -13,15 +13,14 @@ import {
     breakLineAtCursor,
     createDefaultTab,
     insertAtCursor,
-    moveCursor,
-    MoveCursorDirection,
     removeAtCursor,
+    setCursor,
 } from './entities/tab'
 
 export type Msg =
     | {
           type: 'cursor-move'
-          direction: MoveCursorDirection
+          direction: 'left' | 'right' | 'up' | 'down'
       }
     | {
           type: 'cursor-insert'
@@ -83,7 +82,23 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                 return prevState
             }
 
-            const tabUpdate = moveCursor(tab, { direction: msg.direction })
+            const newCursor = { ...tab.cursor }
+            switch (msg.direction) {
+                case 'left':
+                    newCursor.column--
+                    break
+                case 'right':
+                    newCursor.column++
+                    break
+                case 'up':
+                    newCursor.row--
+                    break
+                case 'down':
+                    newCursor.row++
+                    break
+            }
+
+            const tabUpdate = setCursor(tab, newCursor)
             const tabIndex = editor.activeTabIndex
 
             return {
