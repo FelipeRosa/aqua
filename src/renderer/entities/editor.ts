@@ -152,7 +152,7 @@ export const scrollTab = (
     const x = Math.max(0, tab.scroll.x + deltaX)
     const y = Math.min(
         Math.max(0, tab.scroll.y + deltaY),
-        contentHeight - tab.size.height + 32,
+        Math.max(contentHeight - tab.size.height + 32, 0),
     )
 
     return updateTab(editor, { tabIndex, tabUpdate: { scroll: { x, y } } })
