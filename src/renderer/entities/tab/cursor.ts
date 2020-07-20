@@ -3,3 +3,4 @@ export type Cursor = {
     column: number
 }
 
+export type CursorWithSelection = Cursor & { selectionStart: Cursor | null }

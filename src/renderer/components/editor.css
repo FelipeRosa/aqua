@@ -125,3 +125,8 @@
 .editor-cursor {
     position: absolute;
 }
+
+.editor-cursor-selection {
+    position: absolute;
+    pointer-events: none;
+}

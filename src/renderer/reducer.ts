@@ -21,6 +21,7 @@ export type Msg =
     | {
           type: 'cursor-move'
           direction: 'left' | 'right' | 'up' | 'down'
+          selecting: boolean
       }
     | {
           type: 'cursor-insert'
@@ -41,6 +42,7 @@ export type Msg =
           index: number
           clickX: number
           clickY: number
+          selecting: boolean
       }
     | {
           type: 'editor-tab-close'
@@ -98,7 +100,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                     break
             }
 
-            const tabUpdate = setCursor(tab, newCursor)
+            const tabUpdate = setCursor(tab, newCursor, msg.selecting)
             const tabIndex = editor.activeTabIndex
 
             return {
@@ -197,7 +199,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                 ...prevState,
                 editor: updateTab(editor, {
                     tabIndex: msg.index,
-                    tabUpdate: { cursor: { row, column } },
+                    tabUpdate: setCursor(tab, { row, column }, msg.selecting),
                 }),
             }
         }

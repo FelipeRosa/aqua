@@ -1,5 +1,3 @@
-import { Editor } from './editor'
-
 export type EditorTheme = {
     backgroundColor: string
     textColor: string
@@ -10,6 +8,7 @@ export type EditorTheme = {
     tabsBorderBottom: string
     contentBackgroundColor: string
     lineNumbersColor: string
+    selectionColor: string
 }
 
 export const createDefaultEditorTheme = (): EditorTheme => ({
@@ -19,7 +18,8 @@ export const createDefaultEditorTheme = (): EditorTheme => ({
     activeTabBackgroundColor: '#44475a',
     activeTabBorderColor: '#bd93f9',
     tabsBorderBottom: '#44475a',
-    currentLineColor: '#44475a',
+    currentLineColor: 'rgba(68,71,90,0.2)',
     contentBackgroundColor: '#282a36',
     lineNumbersColor: '#727795',
+    selectionColor: 'rgba(68,71,90,0.7)',
 })

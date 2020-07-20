@@ -2,13 +2,13 @@ import path from 'path'
 import { createDefaultFont, Font, stringMetrics } from './font'
 import { Size } from './geom'
 import { breakLine, Content, insertAt, removeAt } from './tab/content'
-import { Cursor } from './tab/cursor'
+import { Cursor, CursorWithSelection } from './tab/cursor'
 import { Scroll } from './tab/scroll'
 
 export type Tab = {
     label: string | null
     content: Content
-    cursor: Cursor
+    cursor: CursorWithSelection
     scroll: Scroll
     font: Font
     size: Size
@@ -21,7 +21,7 @@ export type InsertAtCursorParams = {
 export const createDefaultTab = (): Tab => ({
     label: null,
     content: [''],
-    cursor: { row: 0, column: 0 },
+    cursor: { row: 0, column: 0, selectionStart: null },
     scroll: { x: 0, y: 0 },
     font: createDefaultFont(),
     size: { width: 0, height: 0 },
@@ -37,13 +37,28 @@ export const adjustedCursor = (tab: Tab): Cursor => ({
     column: Math.min(tab.cursor.column, tab.content[tab.cursor.row].length),
 })
 
-export const setCursor = (tab: Tab, cursor: Cursor): Tab => {
+export const setCursor = (
+    tab: Tab,
+    cursor: Cursor,
+    selecting: boolean,
+): Tab => {
     const row = Math.min(Math.max(0, cursor.row), tab.content.length - 1)
 
     const cursorLine = tab.content[row]
     const column = Math.min(Math.max(0, cursor.column), cursorLine.length)
 
-    const newCursor = { row, column }
+    const newCursor: CursorWithSelection = {
+        ...tab.cursor,
+        row,
+        column,
+    }
+
+    // handle cursor selection
+    if (selecting && tab.cursor.selectionStart === null) {
+        newCursor.selectionStart = tab.cursor
+    } else if (!selecting) {
+        newCursor.selectionStart = null
+    }
 
     // adjust scroll
     const cursorSubstr = cursorLine.substr(0, newCursor.column)
@@ -95,6 +110,7 @@ export const insertAtCursor = (tab: Tab, { s }: InsertAtCursorParams): Tab => {
             content: newContent,
         },
         result.newCursorPosition,
+        false,
     )
 }
 
@@ -108,6 +124,7 @@ export const removeAtCursor = (tab: Tab): Tab => {
             content: newContent,
         },
         result.newCursorPosition,
+        false,
     )
 }
 
@@ -119,8 +136,8 @@ export const breakLineAtCursor = (tab: Tab): Tab => {
         {
             ...tab,
             content: newContent,
-            cursor: result.newCursorPosition,
         },
         result.newCursorPosition,
+        false,
     )
 }

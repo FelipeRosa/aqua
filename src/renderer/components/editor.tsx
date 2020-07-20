@@ -3,6 +3,7 @@ import { AppStateContext } from '../context'
 import { activeTab as editorActiveTab } from '../entities/editor'
 import { Cursor } from './cursor'
 import './editor.css'
+import { Selection } from './selection'
 import { Tabs } from './tabs'
 
 export const Editor = () => {
@@ -36,19 +37,35 @@ export const Editor = () => {
                 break
 
             case 39:
-                dispatch({ type: 'cursor-move', direction: 'right' })
+                dispatch({
+                    type: 'cursor-move',
+                    direction: 'right',
+                    selecting: e.shiftKey,
+                })
                 break
 
             case 37:
-                dispatch({ type: 'cursor-move', direction: 'left' })
+                dispatch({
+                    type: 'cursor-move',
+                    direction: 'left',
+                    selecting: e.shiftKey,
+                })
                 break
 
             case 38:
-                dispatch({ type: 'cursor-move', direction: 'up' })
+                dispatch({
+                    type: 'cursor-move',
+                    direction: 'up',
+                    selecting: e.shiftKey,
+                })
                 break
 
             case 40:
-                dispatch({ type: 'cursor-move', direction: 'down' })
+                dispatch({
+                    type: 'cursor-move',
+                    direction: 'down',
+                    selecting: e.shiftKey,
+                })
                 break
 
             default:
@@ -94,6 +111,7 @@ export const Editor = () => {
             index: editor.activeTabIndex,
             clickX: e.clientX,
             clickY: e.clientY,
+            selecting: e.shiftKey,
         })
     }
 
@@ -195,6 +213,8 @@ export const Editor = () => {
                             onKeyDown={onKeyDown}
                             onInput={onInput}
                         />
+
+                        <Selection tab={activeTab} />
 
                         <Cursor
                             tab={activeTab}

@@ -1,3 +1,5 @@
+import { bounds, Selection } from './selection'
+
 export type Content = string[]
 
 export type InsertAtParams = {
@@ -110,4 +112,32 @@ export const breakLine = (
             },
         },
     ]
+}
+
+export const subContent = (
+    content: Content,
+    selection: Selection,
+): Content | null => {
+    const { start, end } = selection
+
+    // Bound check
+    if (
+        start.row < 0 ||
+        start.row >= content.length ||
+        end.row < 0 ||
+        end.row >= content.length ||
+        start.column < 0 ||
+        start.column > content[start.row].length ||
+        end.column < 0 ||
+        end.column > content[end.row].length
+    ) {
+        return null
+    }
+
+    return bounds(selection).map((s) =>
+        content[s.start.row].substr(
+            s.start.column,
+            s.end.column - s.start.column,
+        ),
+    )
 }
