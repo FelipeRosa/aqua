@@ -1,4 +1,10 @@
-import { app, BrowserWindow, dialog, Menu } from 'electron'
+import {
+    app,
+    BrowserWindow,
+    dialog,
+    Menu,
+    MenuItemConstructorOptions,
+} from 'electron'
 import * as fs from 'fs'
 import { debounce } from '../internal/debounce'
 import { sendToRenderer } from '../internal/main-messages'
@@ -21,17 +27,23 @@ app.whenReady().then(() => {
         100,
     )
     window.on('resize', () => debouncedWindowResized())
-    window.webContents.on('did-finish-load', () => debouncedWindowResized())
 
-    window.loadFile('./dist/index.html')
+    window.loadFile('./dist/index.html').then(() => {
+        debouncedWindowResized()
+    })
+
+    const appMenu: MenuItemConstructorOptions[] =
+        process.platform === 'darwin' ? [{ role: 'appMenu' }] : []
 
     const menu = Menu.buildFromTemplate([
+        ...appMenu,
         {
             label: 'File',
             submenu: [
                 {
                     label: 'New',
-                    accelerator: 'Ctrl+N',
+                    accelerator:
+                        process.platform === 'darwin' ? 'Cmd+N' : 'Ctrl+N',
                     click: () => {
                         sendToRenderer(window, {
                             type: 'new-tab',
@@ -41,7 +53,8 @@ app.whenReady().then(() => {
                 },
                 {
                     label: 'Open',
-                    accelerator: 'Ctrl+O',
+                    accelerator:
+                        process.platform === 'darwin' ? 'Cmd+O' : 'Ctrl+O',
                     click: () => {
                         const dialogPaths = dialog.showOpenDialogSync(window, {
                             properties: ['openFile', 'multiSelections'],
@@ -69,7 +82,8 @@ app.whenReady().then(() => {
                 },
                 {
                     label: 'Save',
-                    accelerator: 'Ctrl+S',
+                    accelerator:
+                        process.platform === 'darwin' ? 'Cmd+S' : 'Ctrl+S',
                     click: () => {
                         sendToRenderer(window, {
                             type: 'get-current-tab',
