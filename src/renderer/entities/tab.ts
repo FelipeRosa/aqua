@@ -1,6 +1,6 @@
 import path from 'path'
 import { createDefaultFont, Font, stringMetrics } from './font'
-import { Size } from './geom'
+import { Point, Size } from './geom'
 import { breakLine, Content, insertAt, removeAt } from './tab/content'
 import { Cursor, CursorWithSelection } from './tab/cursor'
 import { Scroll } from './tab/scroll'
@@ -36,6 +36,31 @@ export const adjustedCursor = (tab: Tab): Cursor => ({
     row: tab.cursor.row,
     column: Math.min(tab.cursor.column, tab.content[tab.cursor.row].length),
 })
+
+export const cursorFromPoint = (tab: Tab, p: Point): Cursor | null => {
+    // This takes into account the tab labels height (32px)
+    const row = Math.floor((p.y + tab.scroll.y - 32) / tab.font.lineHeight)
+    if (row < 0) {
+        return null
+    }
+
+    const rowContent = tab.content[Math.min(row, tab.content.length - 1)]
+
+    let s = ''
+    for (let i = 0; i < rowContent.length; i++) {
+        const right = s + rowContent.charAt(i)
+        // This takes into account the line numbers width (48px)
+        if (stringMetrics(tab.font, right).width > p.x - 48) {
+            break
+        }
+
+        s = right
+    }
+
+    const column = s.length
+
+    return { row, column }
+}
 
 export const setCursor = (
     tab: Tab,

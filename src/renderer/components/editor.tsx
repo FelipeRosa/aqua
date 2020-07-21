@@ -101,7 +101,7 @@ export const Editor = () => {
         })
     }
 
-    const onLineClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
         if (activeTab === null) {
             return
         }
@@ -113,6 +113,17 @@ export const Editor = () => {
             clickY: e.clientY,
             selecting: e.shiftKey,
         })
+    }
+
+    const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.buttons === 1) {
+            dispatch({
+                type: 'editor-tab-content-drag',
+                index: editor.activeTabIndex,
+                dragX: e.clientX,
+                dragY: e.clientY,
+            })
+        }
     }
 
     const editorStyle: React.CSSProperties = {
@@ -177,6 +188,8 @@ export const Editor = () => {
                     className="editor-content-wrapper"
                     style={editorContentWrapperStyle}
                     onWheel={onMouseWheel}
+                    onMouseDown={onMouseDown}
+                    onMouseMove={onMouseMove}
                 >
                     <div
                         className="editor-line-numbers"
@@ -188,7 +201,6 @@ export const Editor = () => {
                                 style={editorLineNumberStyle(
                                     activeTab.cursor.row === lineIndex,
                                 )}
-                                onClick={onLineClick}
                             >
                                 {lineIndex + 1}
                             </div>
@@ -229,7 +241,6 @@ export const Editor = () => {
                                     style={lineStyle(
                                         lineIndex === activeTab.cursor.row,
                                     )}
-                                    onClick={onLineClick}
                                 >
                                     {line}
                                 </div>

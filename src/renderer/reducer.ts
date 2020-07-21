@@ -7,11 +7,11 @@ import {
     setSize,
     updateTab,
 } from './entities/editor'
-import { stringMetrics } from './entities/font'
 import { AppState } from './entities/state'
 import {
     breakLineAtCursor,
     createDefaultTab,
+    cursorFromPoint,
     insertAtCursor,
     removeAtCursor,
     setCursor,
@@ -43,6 +43,12 @@ export type Msg =
           clickX: number
           clickY: number
           selecting: boolean
+      }
+    | {
+          type: 'editor-tab-content-drag'
+          index: number
+          dragX: number
+          dragY: number
       }
     | {
           type: 'editor-tab-close'
@@ -177,29 +183,41 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             // TODO check tab index. Refactoring this code may be a good idea.
             const tab = editor.tabs[msg.index]
 
-            const row = Math.floor(
-                (msg.clickY + tab.scroll.y - 32) / editor.font.lineHeight,
-            )
-
-            const rowContent = tab.content[row]
-
-            let s = ''
-            for (let i = 0; i < rowContent.length; i++) {
-                const right = s + rowContent.charAt(i)
-                if (stringMetrics(editor.font, right).width > msg.clickX - 48) {
-                    break
-                }
-
-                s = right
+            const newCursor = cursorFromPoint(tab, {
+                x: msg.clickX,
+                y: msg.clickY,
+            })
+            if (newCursor === null) {
+                return prevState
             }
-
-            const column = s.length
 
             return {
                 ...prevState,
                 editor: updateTab(editor, {
                     tabIndex: msg.index,
-                    tabUpdate: setCursor(tab, { row, column }, msg.selecting),
+                    tabUpdate: setCursor(tab, newCursor, msg.selecting),
+                }),
+            }
+        }
+
+        case 'editor-tab-content-drag': {
+            const { editor } = prevState
+
+            const tab = editor.tabs[msg.index]
+
+            const newCursor = cursorFromPoint(tab, {
+                x: msg.dragX,
+                y: msg.dragY,
+            })
+            if (newCursor === null) {
+                return prevState
+            }
+
+            return {
+                ...prevState,
+                editor: updateTab(editor, {
+                    tabIndex: msg.index,
+                    tabUpdate: setCursor(tab, newCursor, true),
                 }),
             }
         }
