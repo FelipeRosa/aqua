@@ -6,6 +6,10 @@
     "scripts": {
         "start": "electron .",
         "test": "jest",
+        "test:ci": "jest --ci --runInBand --reporters=default --reporters=jest-junit --collectCoverage=true --coverageDirectory=reports/coverage",
+        "lint": "tslint -p tsconfig.json",
+        "lint:ci": "tslint -p tsconfig.json -t junit -o reports/junit/tslint_junit.xml",
+        "build:ci": "webpack",
         "build:dev": "webpack -w"
     },
     "keywords": [],
@@ -24,6 +28,7 @@
         "css-loader": "^3.6.0",
         "html-webpack-plugin": "^4.3.0",
         "jest": "^26.1.0",
+        "jest-junit": "^11.0.1",
         "prettier": "^2.0.5",
         "prettier-plugin-organize-imports": "^1.1.0",
         "style-loader": "^1.2.1",

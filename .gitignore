@@ -2,3 +2,5 @@
 dist/
 node_modules/
 coverage/
+junit.xml
+tslint_junit.xml
