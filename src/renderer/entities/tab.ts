@@ -1,7 +1,7 @@
 import path from 'path'
 import { createDefaultFont, Font, stringMetrics } from './font'
 import { Point, Size } from './geom'
-import { breakLine, Content, insertAt, removeAt } from './tab/content'
+import { breakLine, Content, insertAt, removeSelection } from './tab/content'
 import { Cursor, CursorWithSelection } from './tab/cursor'
 import { Scroll } from './tab/scroll'
 
@@ -14,14 +14,10 @@ export type Tab = {
     size: Size
 }
 
-export type InsertAtCursorParams = {
-    s: string
-}
-
 export const createDefaultTab = (): Tab => ({
     label: null,
     content: [''],
-    cursor: { row: 0, column: 0, selectionStart: null },
+    cursor: { row: 0, column: 0, selectionStartOrEnd: null },
     scroll: { x: 0, y: 0 },
     font: createDefaultFont(),
     size: { width: 0, height: 0 },
@@ -32,7 +28,8 @@ export const labelText = ({ label }: Tab): string =>
     //       consider the case when multiple tabs have the same basename
     label === null ? 'Unnamed' : path.basename(label)
 
-export const adjustedCursor = (tab: Tab): Cursor => ({
+export const adjustedCursor = (tab: Tab): CursorWithSelection => ({
+    ...tab.cursor,
     row: tab.cursor.row,
     column: Math.min(tab.cursor.column, tab.content[tab.cursor.row].length),
 })
@@ -79,10 +76,10 @@ export const setCursor = (
     }
 
     // handle cursor selection
-    if (selecting && tab.cursor.selectionStart === null) {
-        newCursor.selectionStart = tab.cursor
+    if (selecting && tab.cursor.selectionStartOrEnd === null) {
+        newCursor.selectionStartOrEnd = tab.cursor
     } else if (!selecting) {
-        newCursor.selectionStart = null
+        newCursor.selectionStartOrEnd = null
     }
 
     // adjust scroll
@@ -125,44 +122,23 @@ export const setCursor = (
     }
 }
 
-export const insertAtCursor = (tab: Tab, { s }: InsertAtCursorParams): Tab => {
-    const cursor = adjustedCursor(tab)
-    const [newContent, result] = insertAt(tab.content, { s, ...cursor })
+export const insertAtCursor = (tab: Tab, s: string): Tab => {
+    const newTab = removeAtCursor(tab)
+    const [newContent, newCursor] = insertAt(newTab.content, s, newTab.cursor)
 
-    return setCursor(
-        {
-            ...tab,
-            content: newContent,
-        },
-        result.newCursorPosition,
-        false,
-    )
+    return setCursor({ ...tab, content: newContent }, newCursor, false)
 }
 
 export const removeAtCursor = (tab: Tab): Tab => {
     const cursor = adjustedCursor(tab)
-    const [newContent, result] = removeAt(tab.content, cursor)
+    const [newContent, newCursor] = removeSelection(tab.content, cursor)
 
-    return setCursor(
-        {
-            ...tab,
-            content: newContent,
-        },
-        result.newCursorPosition,
-        false,
-    )
+    return setCursor({ ...tab, content: newContent }, newCursor, false)
 }
 
 export const breakLineAtCursor = (tab: Tab): Tab => {
-    const cursor = adjustedCursor(tab)
-    const [newContent, result] = breakLine(tab.content, cursor)
+    const newTab = removeAtCursor(tab)
+    const [newContent, newCursor] = breakLine(newTab.content, newTab.cursor)
 
-    return setCursor(
-        {
-            ...tab,
-            content: newContent,
-        },
-        result.newCursorPosition,
-        false,
-    )
+    return setCursor({ ...tab, content: newContent }, newCursor, false)
 }

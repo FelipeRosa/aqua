@@ -123,7 +123,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                 return prevState
             }
 
-            const tabUpdate = insertAtCursor(tab, { s: msg.char })
+            const tabUpdate = insertAtCursor(tab, msg.char)
             const tabIndex = editor.activeTabIndex
 
             return {
@@ -138,6 +138,23 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             const tab = activeTab(editor)
             if (tab === null) {
                 return prevState
+            }
+
+            // Create an artificial selection containing the
+            // character behind the cursor
+            const { cursor } = tab
+
+            if (
+                cursor.selectionStartOrEnd === null &&
+                (cursor.row > 0 || cursor.column > 0)
+            ) {
+                cursor.selectionStartOrEnd = {
+                    row: cursor.column === 0 ? cursor.row - 1 : cursor.row,
+                    column:
+                        cursor.column === 0
+                            ? tab.content[cursor.row - 1].length
+                            : cursor.column - 1,
+                }
             }
 
             const tabUpdate = removeAtCursor(tab)

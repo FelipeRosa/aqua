@@ -1,93 +1,72 @@
-import { bounds, Selection } from './selection'
+import {
+    Cursor,
+    CursorWithSelection,
+    selection as cursorSelection,
+} from './cursor'
+import { bounds, normalized, Selection } from './selection'
 
 export type Content = string[]
 
-export type InsertAtParams = {
-    s: string
-    row: number
-    column: number
-}
-
-export type InsertAtResult = {
-    newCursorPosition: { row: number; column: number }
-}
-
-export type RemoveAtParams = {
-    row: number
-    column: number
-}
-
-export type RemoveAtResult = {
-    newCursorPosition: { row: number; column: number }
-}
-
-export type BreakLineParams = {
-    row: number
-    column: number
-}
-
-export type BreakLineResult = {
-    newCursorPosition: { row: number; column: number }
-}
-
 export const insertAt = (
     content: Content,
-    { s, row, column }: InsertAtParams,
-): [Content, InsertAtResult] => {
+    s: string,
+    cursor: Cursor,
+): [Content, Cursor] => {
+    const { row, column } = cursor
+
     const newContent = [...content]
     newContent[row] =
         content[row].slice(0, column) + s + content[row].slice(column)
 
-    return [
-        newContent,
-        {
-            newCursorPosition: { row, column: column + 1 },
-        },
-    ]
+    return [newContent, { row, column: column + 1 }]
 }
 
-export const removeAt = (
+export const removeSelection = (
     content: Content,
-    { row, column }: RemoveAtParams,
-): [Content, RemoveAtResult] => {
-    let newContent = [...content]
-    const result: RemoveAtResult = {
-        newCursorPosition: {
-            row,
-            column,
-        },
+    cursor: CursorWithSelection,
+): [Content, Cursor] => {
+    const selection = cursorSelection(cursor)
+    if (selection === null) {
+        return [content, cursor]
     }
 
-    if (column > 0) {
-        newContent[row] =
-            content[row].slice(0, column - 1) + content[row].slice(column)
+    const { start, end } = normalized(selection)
 
-        result.newCursorPosition.column = Math.max(
-            0,
-            result.newCursorPosition.column - 1,
-        )
-    } else if (row > 0) {
-        const preLines = content.slice(0, row - 1)
-        const posLines = content.slice(row + 1)
+    const newContent: Content = []
+    for (let i = 0; i < content.length; i++) {
+        if (i < start.row || i > end.row) {
+            newContent.push(content[i])
+            continue
+        }
 
-        newContent = [
-            ...preLines,
-            content[row - 1] + content[row].trimLeft(),
-            ...posLines,
-        ]
+        if (i === start.row) {
+            const line = content[i].substr(0, start.column)
+            if (line.length > 0) {
+                newContent.push(line)
+            }
+        }
 
-        result.newCursorPosition.row--
-        result.newCursorPosition.column =
-            content[result.newCursorPosition.row].length
+        if (i === end.row) {
+            const line = content[i].substr(end.column)
+
+            newContent[start.row] = (newContent[start.row] || '') + line
+        }
     }
 
-    return [newContent, result]
+    // Empty content is defined as ['']
+    if (newContent.length === 0) {
+        newContent.push('')
+    }
+
+    return [newContent, start]
 }
 
 export const breakLine = (
     content: Content,
-    { row, column }: BreakLineParams,
-): [Content, BreakLineResult] => {
+    cursor: Cursor,
+): [Content, Cursor] => {
+    const { row, column } = cursor
+
     const preLines = content.slice(0, row)
     const posLines = content.slice(row + 1)
 
@@ -103,15 +82,7 @@ export const breakLine = (
         ...posLines,
     ]
 
-    return [
-        newContent,
-        {
-            newCursorPosition: {
-                row: row + 1,
-                column: preSpaces.length,
-            },
-        },
-    ]
+    return [newContent, { row: row + 1, column: preSpaces.length }]
 }
 
 export const subContent = (

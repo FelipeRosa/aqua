@@ -19,14 +19,14 @@ export const Selection = ({ tab }: SelectionProps) => {
 
     const { font } = editor
     const { content, cursor } = tab
-    const { selectionStart } = cursor
+    const { selectionStartOrEnd } = cursor
 
-    if (selectionStart === null) {
+    if (selectionStartOrEnd === null) {
         return null
     }
 
     const selection: SelectionEntity = {
-        start: selectionStart,
+        start: selectionStartOrEnd,
         end: cursor,
     }
 
