@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { AppStateContext } from '../context'
-import { labelText } from '../entities/tab'
+import { labelText } from '../services/tab'
 
 export const Tabs = () => {
     const { state, dispatch } = useContext(AppStateContext)

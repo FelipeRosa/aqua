@@ -1,11 +1,6 @@
-import {
-    Cursor,
-    CursorWithSelection,
-    selection as cursorSelection,
-} from './cursor'
-import { bounds, normalized, Selection } from './selection'
-
-export type Content = string[]
+import { selection as cursorSelection } from './cursor'
+import { Content, Cursor, CursorWithSelection, Selection } from '../entities'
+import { bounds, normalized } from './selection'
 
 export const insertAt = (
     content: Content,

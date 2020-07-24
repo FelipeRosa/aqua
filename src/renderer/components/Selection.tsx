@@ -1,9 +1,9 @@
 import React, { useContext } from 'react'
 import { AppStateContext } from '../context'
-import { stringMetrics } from '../entities/font'
-import { Tab } from '../entities/tab'
-import { subContent } from '../entities/tab/content'
-import { bounds, Selection as SelectionEntity } from '../entities/tab/selection'
+import { subContent } from '../services/content'
+import { bounds } from '../services/selection'
+import { Selection as SelectionEntity, Tab } from '../entities'
+import { stringMetrics } from '../services/font'
 
 export type SelectionProps = {
     tab: Tab

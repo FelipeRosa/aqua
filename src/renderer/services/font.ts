@@ -1,13 +1,4 @@
-export type Font = {
-    family: string
-    size: number
-    lineHeight: number
-}
-
-export type StringMetrics = {
-    width: number
-    lineHeight: number
-}
+import { Font, StringMetrics } from '../entities'
 
 export const createDefaultFont = (): Font => {
     const font: Font = {

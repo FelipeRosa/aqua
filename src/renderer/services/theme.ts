@@ -1,15 +1,4 @@
-export type EditorTheme = {
-    backgroundColor: string
-    textColor: string
-    cursorColor: string
-    activeTabBackgroundColor: string
-    activeTabBorderColor: string
-    currentLineColor: string
-    tabsBorderBottom: string
-    contentBackgroundColor: string
-    lineNumbersColor: string
-    selectionColor: string
-}
+import { EditorTheme } from '../entities'
 
 export const createDefaultEditorTheme = (): EditorTheme => ({
     backgroundColor: '#1f202a',

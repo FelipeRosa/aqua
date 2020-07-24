@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { AppStateContext } from '../context'
-import { stringMetrics } from '../entities/font'
-import { Tab } from '../entities/tab'
+import { stringMetrics } from '../services/font'
+import { Tab } from '../entities'
 
 export type CursorProps = {
     tab: Tab

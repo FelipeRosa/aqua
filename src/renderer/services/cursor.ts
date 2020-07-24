@@ -1,13 +1,4 @@
-import { Selection } from './selection'
-
-export type Cursor = {
-    row: number
-    column: number
-}
-
-export type CursorWithSelection = Cursor & {
-    selectionStartOrEnd: Cursor | null
-}
+import { Cursor, CursorWithSelection, Selection } from '../entities'
 
 export const withoutSelection = (cursor: CursorWithSelection): Cursor => ({
     row: cursor.row,

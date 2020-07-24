@@ -1,0 +1,15 @@
+coverage:
+  range: 70..90
+  round: down
+  precision: 2
+  status:
+    project:
+      default:
+        enabled: yes
+    patch:
+      default:
+        enabled: false
+    changes: no
+
+comment:
+  layout: diff, files

@@ -1,18 +1,7 @@
 import path from 'path'
-import { createDefaultFont, Font, stringMetrics } from './font'
-import { Point, Size } from './geom'
-import { breakLine, Content, insertAt, removeSelection } from './tab/content'
-import { Cursor, CursorWithSelection } from './tab/cursor'
-import { Scroll } from './tab/scroll'
-
-export type Tab = {
-    label: string | null
-    content: Content
-    cursor: CursorWithSelection
-    scroll: Scroll
-    font: Font
-    size: Size
-}
+import { breakLine, insertAt, removeSelection } from './content'
+import { Cursor, CursorWithSelection, Point, Tab } from '../entities'
+import { createDefaultFont, stringMetrics } from './font'
 
 export const createDefaultTab = (): Tab => ({
     label: null,

@@ -2,12 +2,12 @@ import { ipcRenderer } from 'electron'
 import React, { useEffect, useReducer } from 'react'
 import { render } from 'react-dom'
 import { MainMsg } from '../internal/main-messages'
-import { Editor } from './components/editor'
+import { Editor } from './components/Editor'
 import { AppStateContext } from './context'
-import { activeTab } from './entities/editor'
-import { createDefaultAppState } from './entities/state'
 import './index.css'
 import { reducer } from './reducer'
+import { activeTab } from './services/editor'
+import { createDefaultAppState } from './services/state'
 
 const App = () => {
     const [state, dispatch] = useReducer(reducer, createDefaultAppState())

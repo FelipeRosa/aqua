@@ -1,5 +1,5 @@
 import { BrowserWindow, ipcMain } from 'electron'
-import { Tab } from '../renderer/entities/tab'
+import { Tab } from '../renderer/entities'
 
 export type NewTabMsg<T extends 'new-tab'> = {
     type: T

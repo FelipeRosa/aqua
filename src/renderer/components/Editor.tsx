@@ -1,10 +1,10 @@
 import React, { useContext, useRef } from 'react'
 import { AppStateContext } from '../context'
-import { activeTab as editorActiveTab } from '../entities/editor'
-import { Cursor } from './cursor'
-import './editor.css'
-import { Selection } from './selection'
-import { Tabs } from './tabs'
+import { Cursor } from './Cursor'
+import './Editor.css'
+import { Selection } from './Selection'
+import { Tabs } from './Tabs'
+import { activeTab as editorActiveTab } from '../services/editor'
 
 export const Editor = () => {
     const {

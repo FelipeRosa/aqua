@@ -1,6 +1,7 @@
 import { createContext, Dispatch } from 'react'
-import { AppState, createDefaultAppState } from './entities/state'
 import { Msg } from './reducer'
+import { AppState } from './entities'
+import { createDefaultAppState } from './services/state'
 
 export type AppStateContextValue = {
     state: AppState

@@ -1,5 +1,6 @@
-import { Content, removeSelection, subContent } from './content'
-import { Cursor } from './cursor'
+
+import { removeSelection, subContent } from './content'
+import { Content, Cursor } from '../entities'
 
 describe('content', () => {
     const content: Content = [

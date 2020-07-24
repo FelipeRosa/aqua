@@ -1,4 +1,12 @@
 import {
+    breakLineAtCursor,
+    createDefaultTab,
+    cursorFromPoint,
+    insertAtCursor,
+    removeAtCursor,
+    setCursor,
+} from './services/tab'
+import {
     activeTab,
     insertTab,
     removeTab,
@@ -6,16 +14,8 @@ import {
     setActiveTabIndex,
     setSize,
     updateTab,
-} from './entities/editor'
-import { AppState } from './entities/state'
-import {
-    breakLineAtCursor,
-    createDefaultTab,
-    cursorFromPoint,
-    insertAtCursor,
-    removeAtCursor,
-    setCursor,
-} from './entities/tab'
+} from './services/editor'
+import { AppState } from './entities'
 
 export type Msg =
     | {
@@ -111,7 +111,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             return {
                 ...prevState,
-                editor: updateTab(editor, { tabIndex, tabUpdate }),
+                editor: updateTab(editor, tabIndex, tabUpdate),
             }
         }
 
@@ -128,7 +128,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             return {
                 ...prevState,
-                editor: updateTab(editor, { tabIndex, tabUpdate }),
+                editor: updateTab(editor, tabIndex, tabUpdate),
             }
         }
 
@@ -162,7 +162,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             return {
                 ...prevState,
-                editor: updateTab(editor, { tabIndex, tabUpdate }),
+                editor: updateTab(editor, tabIndex, tabUpdate),
             }
         }
 
@@ -179,7 +179,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             return {
                 ...prevState,
-                editor: updateTab(editor, { tabIndex, tabUpdate }),
+                editor: updateTab(editor, tabIndex, tabUpdate),
             }
         }
 
@@ -188,9 +188,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             return {
                 ...prevState,
-                editor: setActiveTabIndex(editor, {
-                    activeTabIndex: msg.index,
-                }),
+                editor: setActiveTabIndex(editor, msg.index),
             }
         }
 
@@ -210,10 +208,11 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             return {
                 ...prevState,
-                editor: updateTab(editor, {
-                    tabIndex: msg.index,
-                    tabUpdate: setCursor(tab, newCursor, msg.selecting),
-                }),
+                editor: updateTab(
+                    editor,
+                    msg.index,
+                    setCursor(tab, newCursor, msg.selecting),
+                ),
             }
         }
 
@@ -232,10 +231,11 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             return {
                 ...prevState,
-                editor: updateTab(editor, {
-                    tabIndex: msg.index,
-                    tabUpdate: setCursor(tab, newCursor, true),
-                }),
+                editor: updateTab(
+                    editor,
+                    msg.index,
+                    setCursor(tab, newCursor, true),
+                ),
             }
         }
 
@@ -268,10 +268,8 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             return {
                 ...prevState,
                 editor: insertTab(editor, {
-                    tab: {
-                        ...createDefaultTab(),
-                        ...msg.tab,
-                    },
+                    ...createDefaultTab(),
+                    ...msg.tab,
                 }),
             }
         }
@@ -281,10 +279,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
 
             return {
                 ...prevState,
-                editor: updateTab(editor, {
-                    tabIndex: msg.index,
-                    tabUpdate: msg.tab,
-                }),
+                editor: updateTab(editor, msg.index, msg.tab),
             }
         }
 
@@ -296,7 +291,8 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             return {
                 ...prevState,
                 editor: setSize(editor, {
-                    size: { width: msg.newSize[0], height: msg.newSize[1] },
+                    width: msg.newSize[0],
+                    height: msg.newSize[1],
                 }),
             }
         }

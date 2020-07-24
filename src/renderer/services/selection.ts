@@ -1,9 +1,4 @@
-import { Cursor } from './cursor'
-
-export type Selection = {
-    start: Cursor
-    end: Cursor
-}
+import { Cursor, Selection } from '../entities'
 
 export const normalized = (selection: Selection): Selection => {
     const [top, bottom]: Cursor[] = ((): Cursor[] => {

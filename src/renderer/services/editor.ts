@@ -1,33 +1,8 @@
-import { createDefaultFont, Font } from './font'
-import { Size } from './geom'
-import { Tab } from './tab'
-
-export type Editor = {
-    font: Font
-    tabs: Tab[]
-    activeTabIndex: number
-    size: Size
-}
-
-export type SetActiveTabIndexParams = {
-    activeTabIndex: number
-}
-
-export type SetSizeParams = {
-    size: Size
-}
-
-export type InsertTabParams = {
-    tab: Tab
-}
-
-export type UpdateTabParams = {
-    tabIndex: number
-    tabUpdate: Partial<Tab>
-}
+import { Editor, Size, Tab } from '../entities'
+import * as fontService from './font'
 
 export const createDefaultEditor = (): Editor => ({
-    font: createDefaultFont(),
+    font: fontService.createDefaultFont(),
     tabs: [],
     activeTabIndex: -1,
     size: { width: 0, height: 0 },
@@ -35,7 +10,7 @@ export const createDefaultEditor = (): Editor => ({
 
 export const setActiveTabIndex = (
     editor: Editor,
-    { activeTabIndex }: SetActiveTabIndexParams,
+    activeTabIndex: number,
 ): Editor => {
     if (activeTabIndex < 0 || activeTabIndex >= editor.tabs.length) {
         return editor
@@ -47,7 +22,7 @@ export const setActiveTabIndex = (
     }
 }
 
-export const setSize = (editor: Editor, { size }: SetSizeParams): Editor => ({
+export const setSize = (editor: Editor, size: Size): Editor => ({
     ...editor,
     size,
     tabs: editor.tabs.map((tab) => ({
@@ -56,7 +31,7 @@ export const setSize = (editor: Editor, { size }: SetSizeParams): Editor => ({
     })),
 })
 
-export const insertTab = (editor: Editor, { tab }: InsertTabParams): Editor => {
+export const insertTab = (editor: Editor, tab: Tab): Editor => {
     const { tabs: editorTabs, activeTabIndex } = editor
 
     const resizedTab: Tab = {
@@ -109,7 +84,8 @@ export const removeTab = (editor: Editor, tabIndex: number): Editor => {
 
 export const updateTab = (
     editor: Editor,
-    { tabIndex, tabUpdate }: UpdateTabParams,
+    tabIndex: number,
+    tabUpdate: Partial<Tab>,
 ): Editor => {
     if (tabIndex < 0 || tabIndex >= editor.tabs.length) {
         return editor
@@ -155,5 +131,5 @@ export const scrollTab = (
         Math.max(contentHeight - tab.size.height + 32, 0),
     )
 
-    return updateTab(editor, { tabIndex, tabUpdate: { scroll: { x, y } } })
+    return updateTab(editor, tabIndex, { scroll: { x, y } })
 }
