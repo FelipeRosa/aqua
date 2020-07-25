@@ -1,6 +1,5 @@
-
-import { removeSelection, subContent } from './content'
 import { Content, Cursor } from '../entities'
+import { insertAt, removeSelection, subContent } from './content'
 
 describe('content', () => {
     const content: Content = [
@@ -9,6 +8,62 @@ describe('content', () => {
         'line three after two',
         'line four after all',
     ]
+
+    describe('insertAt', () => {
+        it('adds single line', () => {
+            const [result, cursor] = insertAt(content, 'abc', {
+                row: 1,
+                column: 1,
+            })
+
+            expect(result).toEqual([
+                ...content.slice(0, 1),
+                'labcine two after one',
+                ...content.slice(2),
+            ])
+            expect(cursor).toEqual({
+                row: 1,
+                column: 4,
+            })
+        })
+
+        it('adds multiplie lines', () => {
+            const [result, cursor] = insertAt(content, 'ab\nc\n', {
+                row: 1,
+                column: 1,
+            })
+
+            expect(result).toEqual([
+                ...content.slice(0, 1),
+                'lab',
+                'c',
+                'ine two after one',
+                ...content.slice(2),
+            ])
+            expect(cursor).toEqual({
+                row: 3,
+                column: 0,
+            })
+        })
+
+        it('breaks lines', () => {
+            const [result, cursor] = insertAt(content, '\n', {
+                row: 1,
+                column: 1,
+            })
+
+            expect(result).toEqual([
+                ...content.slice(0, 1),
+                'l',
+                'ine two after one',
+                ...content.slice(2),
+            ])
+            expect(cursor).toEqual({
+                row: 2,
+                column: 0,
+            })
+        })
+    })
 
     describe('removeSelection', () => {
         it('works', () => {

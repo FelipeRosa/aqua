@@ -1,6 +1,6 @@
 import path from 'path'
-import { breakLine, insertAt, removeSelection } from './content'
 import { Cursor, CursorWithSelection, Point, Tab } from '../entities'
+import { insertAt, removeSelection } from './content'
 import { createDefaultFont, stringMetrics } from './font'
 
 export const createDefaultTab = (): Tab => ({
@@ -121,13 +121,6 @@ export const insertAtCursor = (tab: Tab, s: string): Tab => {
 export const removeAtCursor = (tab: Tab): Tab => {
     const cursor = adjustedCursor(tab)
     const [newContent, newCursor] = removeSelection(tab.content, cursor)
-
-    return setCursor({ ...tab, content: newContent }, newCursor, false)
-}
-
-export const breakLineAtCursor = (tab: Tab): Tab => {
-    const newTab = removeAtCursor(tab)
-    const [newContent, newCursor] = breakLine(newTab.content, newTab.cursor)
 
     return setCursor({ ...tab, content: newContent }, newCursor, false)
 }

@@ -1,5 +1,5 @@
-import { selection as cursorSelection } from './cursor'
 import { Content, Cursor, CursorWithSelection, Selection } from '../entities'
+import { selection as cursorSelection } from './cursor'
 import { bounds, normalized } from './selection'
 
 export const insertAt = (
@@ -9,11 +9,29 @@ export const insertAt = (
 ): [Content, Cursor] => {
     const { row, column } = cursor
 
-    const newContent = [...content]
-    newContent[row] =
-        content[row].slice(0, column) + s + content[row].slice(column)
+    const sLines = s.split('\n')
+    const addedRows = sLines.length - 1
 
-    return [newContent, { row, column: column + 1 }]
+    const newContent: Content = [
+        ...content.slice(0, row),
+        ...sLines,
+        ...content.slice(row + 1),
+    ]
+
+    newContent[row] = content[row].slice(0, column) + sLines[0]
+
+    newContent[row + addedRows] =
+        newContent[row + addedRows] + content[row].slice(column)
+
+    return [
+        newContent,
+        {
+            row: row + addedRows,
+            column:
+                (addedRows === 0 ? column : 0) +
+                sLines[sLines.length - 1].length,
+        },
+    ]
 }
 
 export const removeSelection = (
@@ -54,30 +72,6 @@ export const removeSelection = (
     }
 
     return [newContent, start]
-}
-
-export const breakLine = (
-    content: Content,
-    cursor: Cursor,
-): [Content, Cursor] => {
-    const { row, column } = cursor
-
-    const preLines = content.slice(0, row)
-    const posLines = content.slice(row + 1)
-
-    // compute previous line indentation
-    const preSpacesMatch = content[row].match(/^\s+/)
-    const preSpaces = preSpacesMatch ? preSpacesMatch[0] : ''
-
-    const newContent = [
-        ...preLines,
-        content[row].slice(0, column),
-        // add indentation from previous line
-        preSpaces + content[row].slice(column),
-        ...posLines,
-    ]
-
-    return [newContent, { row: row + 1, column: preSpaces.length }]
 }
 
 export const subContent = (

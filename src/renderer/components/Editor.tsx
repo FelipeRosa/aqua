@@ -1,10 +1,10 @@
 import React, { useContext, useRef } from 'react'
 import { AppStateContext } from '../context'
+import { activeTab as editorActiveTab } from '../services/editor'
 import { Cursor } from './Cursor'
 import './Editor.css'
 import { Selection } from './Selection'
 import { Tabs } from './Tabs'
-import { activeTab as editorActiveTab } from '../services/editor'
 
 export const Editor = () => {
     const {
@@ -33,7 +33,7 @@ export const Editor = () => {
                 break
 
             case 13:
-                dispatch({ type: 'cursor-new-line' })
+                dispatch({ type: 'cursor-insert', char: '\n' })
                 break
 
             case 39:

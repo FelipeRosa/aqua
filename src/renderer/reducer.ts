@@ -1,11 +1,4 @@
-import {
-    breakLineAtCursor,
-    createDefaultTab,
-    cursorFromPoint,
-    insertAtCursor,
-    removeAtCursor,
-    setCursor,
-} from './services/tab'
+import { AppState } from './entities'
 import {
     activeTab,
     insertTab,
@@ -15,7 +8,13 @@ import {
     setSize,
     updateTab,
 } from './services/editor'
-import { AppState } from './entities'
+import {
+    createDefaultTab,
+    cursorFromPoint,
+    insertAtCursor,
+    removeAtCursor,
+    setCursor,
+} from './services/tab'
 
 export type Msg =
     | {
@@ -29,9 +28,6 @@ export type Msg =
       }
     | {
           type: 'cursor-remove'
-      }
-    | {
-          type: 'cursor-new-line'
       }
     | {
           type: 'editor-tab-click'
@@ -158,23 +154,6 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             }
 
             const tabUpdate = removeAtCursor(tab)
-            const tabIndex = editor.activeTabIndex
-
-            return {
-                ...prevState,
-                editor: updateTab(editor, tabIndex, tabUpdate),
-            }
-        }
-
-        case 'cursor-new-line': {
-            const { editor } = prevState
-
-            const tab = activeTab(editor)
-            if (tab === null) {
-                return prevState
-            }
-
-            const tabUpdate = breakLineAtCursor(tab)
             const tabIndex = editor.activeTabIndex
 
             return {
