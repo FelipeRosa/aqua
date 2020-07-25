@@ -7,6 +7,8 @@ Aqua
 
 Aqua is a text editor for the Rust programming language. Currently under development.
 
+![Aqua application screenshot](docs/readme-screenshot.png)
+
 Usage
 =====
 
