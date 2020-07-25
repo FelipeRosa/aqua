@@ -15,7 +15,7 @@ $ git clone git@github.com:FelipeRosa/aqua.git
 $ cd aqua
 $ npm i
 $ npx webpack
-$ npx start
+$ npm start
 ```
 
 Roadmap
