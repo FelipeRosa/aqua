@@ -1,7 +1,15 @@
 import path from 'path'
-import { Cursor, CursorWithSelection, Point, Tab } from '../entities'
-import { insertAt, removeSelection } from './content'
+import {
+    ContentDiff,
+    Cursor,
+    CursorWithSelection,
+    Point,
+    Tab,
+} from '../entities'
+import { applyDiff, insertAt, removeSelection, subContent } from './content'
+import { selection } from './cursor'
 import { createDefaultFont, stringMetrics } from './font'
+import { normalized } from './selection'
 
 export const createDefaultTab = (): Tab => ({
     label: null,
@@ -10,6 +18,10 @@ export const createDefaultTab = (): Tab => ({
     scroll: { x: 0, y: 0 },
     font: createDefaultFont(),
     size: { width: 0, height: 0 },
+    diffs: {
+        done: [],
+        undone: [],
+    },
 })
 
 export const labelText = ({ label }: Tab): string =>
@@ -115,12 +127,76 @@ export const insertAtCursor = (tab: Tab, s: string): Tab => {
     const newTab = removeAtCursor(tab)
     const [newContent, newCursor] = insertAt(newTab.content, s, newTab.cursor)
 
-    return setCursor({ ...tab, content: newContent }, newCursor, false)
+    const newTab1 = { ...tab, content: newContent }
+    newTab1.diffs.done.push({
+        op: 'add',
+        at: newTab.cursor,
+        value: s.split('\n'),
+    })
+    newTab1.diffs.undone = []
+
+    return setCursor(newTab1, newCursor, false)
 }
 
 export const removeAtCursor = (tab: Tab): Tab => {
     const cursor = adjustedCursor(tab)
     const [newContent, newCursor] = removeSelection(tab.content, cursor)
 
-    return setCursor({ ...tab, content: newContent }, newCursor, false)
+    const newTab = { ...tab, content: newContent }
+
+    const cursorSelection = selection(cursor)
+    if (cursorSelection !== null) {
+        const normalizedCursorSelection = normalized(cursorSelection)
+        const value = subContent(tab.content, cursorSelection)
+
+        if (value !== null) {
+            newTab.diffs.done.push({
+                op: 'rm',
+                at: normalizedCursorSelection.start,
+                value,
+            })
+            newTab.diffs.undone = []
+        }
+    }
+
+    return setCursor(newTab, newCursor, false)
+}
+
+export const undoRedo = (tab: Tab, op: 'undo' | 'redo'): Tab => {
+    const newDiffs = {
+        done: [...tab.diffs.done],
+        undone: [...tab.diffs.undone],
+    }
+
+    const [stackOut, stackIn] = ((): [ContentDiff[], ContentDiff[]] => {
+        switch (op) {
+            case 'undo':
+                return [newDiffs.done, newDiffs.undone]
+            case 'redo':
+                return [newDiffs.undone, newDiffs.done]
+        }
+    })()
+
+    const diff: ContentDiff | undefined = stackIn.pop()
+    if (diff === undefined) {
+        return { ...tab }
+    }
+
+    const inverseDiff: ContentDiff = {
+        ...diff,
+        op: diff.op === 'add' ? 'rm' : 'add',
+    }
+    stackOut.push(inverseDiff)
+
+    const [newContent, newCursor] = applyDiff(tab.content, inverseDiff)
+
+    return setCursor(
+        {
+            ...tab,
+            content: newContent,
+            diffs: newDiffs,
+        },
+        newCursor,
+        false,
+    )
 }

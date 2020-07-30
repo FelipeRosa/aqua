@@ -1,5 +1,11 @@
-import { Content, Cursor, CursorWithSelection, Selection } from '../entities'
-import { selection as cursorSelection } from './cursor'
+import {
+    Content,
+    ContentDiff,
+    Cursor,
+    CursorWithSelection,
+    Selection,
+} from '../entities'
+import { selection as cursorSelection, withoutSelection } from './cursor'
 import { bounds, normalized } from './selection'
 
 export const insertAt = (
@@ -40,7 +46,7 @@ export const removeSelection = (
 ): [Content, Cursor] => {
     const selection = cursorSelection(cursor)
     if (selection === null) {
-        return [content, cursor]
+        return [content, withoutSelection(cursor)]
     }
 
     const { start, end } = normalized(selection)
@@ -100,4 +106,27 @@ export const subContent = (
             s.end.column - s.start.column,
         ),
     )
+}
+
+export const applyDiff = (
+    content: Content,
+    diff: ContentDiff,
+): [Content, Cursor] => {
+    switch (diff.op) {
+        case 'add':
+            return insertAt(content, diff.value.join('\n'), diff.at)
+
+        case 'rm': {
+            const cursorWithSelection: CursorWithSelection = {
+                ...diff.at,
+                selectionStartOrEnd: {
+                    row: diff.at.row + diff.value.length - 1,
+                    column:
+                        (diff.value.length === 1 ? diff.at.column : 0) +
+                        diff.value[diff.value.length - 1].length,
+                },
+            }
+            return removeSelection(content, cursorWithSelection)
+        }
+    }
 }

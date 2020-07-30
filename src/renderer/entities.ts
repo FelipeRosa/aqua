@@ -12,6 +12,10 @@ export type Tab = {
     scroll: Scroll
     font: Font
     size: Size
+    diffs: {
+        done: ContentDiff[]
+        undone: ContentDiff[]
+    }
 }
 
 export type Cursor = {
@@ -24,6 +28,11 @@ export type CursorWithSelection = Cursor & {
 }
 
 export type Content = string[]
+export type ContentDiff = {
+    op: 'add' | 'rm'
+    at: Cursor
+    value: Content
+}
 
 export type Scroll = {
     x: number

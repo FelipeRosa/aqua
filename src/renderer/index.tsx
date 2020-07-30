@@ -47,12 +47,20 @@ const App = () => {
                 ipcRenderer.send('renderer-msg.window-resized', null)
             },
         )
+        ipcRenderer.on(
+            'main-msg.content-undo-redo',
+            (_e, msg: MainMsg<'content-undo-redo'>) => {
+                dispatch({ type: 'editor-tab-content-undo-redo', op: msg.op })
+                ipcRenderer.send('renderer-msg.content-undo-redo', null)
+            },
+        )
 
         return () => {
             ipcRenderer.removeAllListeners('main-msg.new-tab')
             ipcRenderer.removeAllListeners('main-msg.get-current-tab')
             ipcRenderer.removeAllListeners('main-msg.update-current-tab')
             ipcRenderer.removeAllListeners('main-msg.window-resized')
+            ipcRenderer.removeAllListeners('main-msg.content-undo-redo')
         }
     }, [])
 

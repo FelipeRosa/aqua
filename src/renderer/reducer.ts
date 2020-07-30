@@ -14,6 +14,7 @@ import {
     insertAtCursor,
     removeAtCursor,
     setCursor,
+    undoRedo,
 } from './services/tab'
 
 export type Msg =
@@ -45,6 +46,10 @@ export type Msg =
           index: number
           dragX: number
           dragY: number
+      }
+    | {
+          type: 'editor-tab-content-undo-redo'
+          op: 'undo' | 'redo'
       }
     | {
           type: 'editor-tab-close'
@@ -215,6 +220,23 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
                     msg.index,
                     setCursor(tab, newCursor, true),
                 ),
+            }
+        }
+
+        case 'editor-tab-content-undo-redo': {
+            const { editor } = prevState
+
+            const tab = activeTab(editor)
+            if (tab === null) {
+                return prevState
+            }
+
+            const tabUpdate = undoRedo(tab, msg.op)
+            const tabIndex = editor.activeTabIndex
+
+            return {
+                ...prevState,
+                editor: updateTab(editor, tabIndex, tabUpdate),
             }
         }
 

@@ -113,6 +113,35 @@ app.whenReady().then(() => {
             ],
         },
         {
+            label: 'Edit',
+            submenu: [
+                {
+                    label: 'Undo',
+                    accelerator:
+                        process.platform === 'darwin' ? 'Cmd+Z' : 'Ctrl+Z',
+                    click: () => {
+                        sendToRenderer(window, {
+                            type: 'content-undo-redo',
+                            op: 'undo',
+                        })
+                    },
+                },
+                {
+                    label: 'Redo',
+                    accelerator:
+                        process.platform === 'darwin'
+                            ? 'Cmd+Shift+Z'
+                            : 'Ctrl+Shift+Z',
+                    click: () => {
+                        sendToRenderer(window, {
+                            type: 'content-undo-redo',
+                            op: 'redo',
+                        })
+                    },
+                },
+            ],
+        },
+        {
             label: 'Help',
             submenu: [
                 {

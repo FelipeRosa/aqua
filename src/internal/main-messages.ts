@@ -25,12 +25,18 @@ export type WindowResizedMsg<T extends 'window-resized'> = {
     newSize: number[]
 }
 
+export type ContentUndoRedoMsg<T extends 'content-undo-redo'> = {
+    type: T
+    op: 'undo' | 'redo'
+}
+
 // prettier-ignore
 export type MainMsg<T> =
       T extends 'new-tab' ? NewTabMsg<T>
     : T extends 'get-current-tab' ? GetCurrentTabMsg<T>
     : T extends 'update-current-tab' ? UpdateCurrentTabMsg<T>
     : T extends 'window-resized' ? WindowResizedMsg<T>
+    : T extends 'content-undo-redo' ? ContentUndoRedoMsg<T>
     : never
 
 // prettier-ignore
@@ -39,6 +45,7 @@ export type RendererMsg<T> =
     : T extends 'get-current-tab' ? Tab | null
     : T extends 'update-current-tab' ? null
     : T extends 'window-resized' ? null
+    : T extends 'content-undo-redo' ? null
     : never
 
 export function sendToRenderer<T>(

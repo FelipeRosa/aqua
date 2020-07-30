@@ -1,5 +1,5 @@
-import { Content, Cursor } from '../entities'
-import { insertAt, removeSelection, subContent } from './content'
+import { Content, ContentDiff, Cursor } from '../entities'
+import { applyDiff, insertAt, removeSelection, subContent } from './content'
 
 describe('content', () => {
     const content: Content = [
@@ -27,7 +27,7 @@ describe('content', () => {
             })
         })
 
-        it('adds multiplie lines', () => {
+        it('adds multiple lines', () => {
             const [result, cursor] = insertAt(content, 'ab\nc\n', {
                 row: 1,
                 column: 1,
@@ -69,7 +69,7 @@ describe('content', () => {
         it('works', () => {
             const testCases: {
                 start: Cursor
-                end: Cursor
+                end: Cursor | null
                 expectedContent: Content
             }[] = [
                 {
@@ -87,6 +87,11 @@ describe('content', () => {
                     end: { row: Infinity, column: Infinity },
                     expectedContent: [''], // empty content is ['']
                 },
+                {
+                    start: { row: 2, column: 2 },
+                    end: null,
+                    expectedContent: content,
+                },
             ]
 
             testCases.forEach(({ start, end, expectedContent }) => {
@@ -94,12 +99,16 @@ describe('content', () => {
                     ...start,
                     selectionStartOrEnd: end,
                 })
+                expect(result).toEqual([expectedContent, start])
+
+                if (end === null) {
+                    return
+                }
+
                 const reversedResult = removeSelection(content, {
                     ...end,
                     selectionStartOrEnd: start,
                 })
-
-                expect(result).toEqual([expectedContent, start])
                 expect(reversedResult).toEqual([expectedContent, start])
             })
         })
@@ -150,6 +159,51 @@ describe('content', () => {
 
             expect(result).toBeNull()
             expect(reversedResult).toBeNull()
+        })
+    })
+
+    describe('applyDiff', () => {
+        describe('when diff op is "add"', () => {
+            const diff: ContentDiff = {
+                op: 'add',
+                at: { row: 2, column: 3 },
+                value: ['ab', 'cd'],
+            }
+
+            it('should add content', () => {
+                expect(applyDiff(content, diff)).toEqual([
+                    [
+                        'line one',
+                        'line two after one',
+                        'linab',
+                        'cde three after two',
+                        'line four after all',
+                    ],
+                    {
+                        row: 3,
+                        column: 2,
+                    },
+                ])
+            })
+        })
+
+        describe('when diff op is "rm"', () => {
+            const diff: ContentDiff = {
+                op: 'rm',
+                at: { row: 0, column: 6 },
+                value: ['ne', 'li'],
+            }
+
+            it('should remove content', () => {
+                expect(applyDiff(content, diff)).toEqual([
+                    [
+                        'line one two after one',
+                        'line three after two',
+                        'line four after all',
+                    ],
+                    diff.at,
+                ])
+            })
         })
     })
 })
