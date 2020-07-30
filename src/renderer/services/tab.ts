@@ -177,7 +177,7 @@ export const undoRedo = (tab: Tab, op: 'undo' | 'redo'): Tab => {
         }
     })()
 
-    const diff: ContentDiff | undefined = stackIn.pop()
+    const diff: ContentDiff | undefined = stackOut.pop()
     if (diff === undefined) {
         return { ...tab }
     }
@@ -186,7 +186,7 @@ export const undoRedo = (tab: Tab, op: 'undo' | 'redo'): Tab => {
         ...diff,
         op: diff.op === 'add' ? 'rm' : 'add',
     }
-    stackOut.push(inverseDiff)
+    stackIn.push(inverseDiff)
 
     const [newContent, newCursor] = applyDiff(tab.content, inverseDiff)
 
