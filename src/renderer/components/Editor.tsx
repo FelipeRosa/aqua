@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react'
+import React, { useContext } from 'react'
 import { AppStateContext } from '../context'
 import { activeTab as editorActiveTab } from '../services/editor'
 import { Cursor } from './Cursor'
@@ -19,9 +19,7 @@ export const Editor = () => {
 
     const activeTab = editorActiveTab(editor)
 
-    const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        let handled = true
-
+    const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         switch (e.keyCode) {
             case 8:
                 dispatch({ type: 'cursor-remove' })
@@ -69,26 +67,15 @@ export const Editor = () => {
                 break
 
             default:
-                handled = false
+                // Check if the key is printable, e.g. 'a', 'b'.
+                //
+                // We must check for the Ctrl and Cmd (meta) keys also so
+                // keys pressed while they are being pressed are not inserted
+                // in the tab's content.
+                if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+                    dispatch({ type: 'cursor-insert', char: e.key })
+                }
                 break
-        }
-
-        if (handled) {
-            e.preventDefault()
-        }
-    }
-
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const onFocus = () => {
-        textareaRef.current?.focus()
-    }
-
-    const onInput = () => {
-        if (textareaRef.current) {
-            const textarea = textareaRef.current
-
-            dispatch({ type: 'cursor-insert', char: textarea.value })
-            textarea.value = ''
         }
     }
 
@@ -211,21 +198,8 @@ export const Editor = () => {
                         className="editor-content"
                         style={editorContentStyle}
                         tabIndex={0}
-                        onFocus={onFocus}
+                        onKeyDown={onKeyDown}
                     >
-                        <textarea
-                            ref={textareaRef}
-                            style={{
-                                position: 'absolute',
-                                left: -25,
-                                top: -25,
-                                width: 10,
-                                height: 10,
-                            }}
-                            onKeyDown={onKeyDown}
-                            onInput={onInput}
-                        />
-
                         <Selection tab={activeTab} />
 
                         <Cursor
