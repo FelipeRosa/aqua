@@ -1,4 +1,7 @@
+import { clipboard } from 'electron'
 import { AppState } from './entities'
+import { subContent } from './services/content'
+import { selection } from './services/cursor'
 import {
     activeTab,
     insertTab,
@@ -50,6 +53,13 @@ export type Msg =
     | {
           type: 'editor-tab-content-undo-redo'
           op: 'undo' | 'redo'
+      }
+    | {
+          type: 'editor-tab-content-copy'
+          cut: boolean
+      }
+    | {
+          type: 'editor-tab-content-paste'
       }
     | {
           type: 'editor-tab-close'
@@ -240,6 +250,64 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
             }
         }
 
+        case 'editor-tab-content-copy': {
+            const { editor } = prevState
+
+            const tab = activeTab(editor)
+            if (tab === null) {
+                return prevState
+            }
+
+            const cursorSelection = selection(tab.cursor)
+            if (cursorSelection === null) {
+                const line = tab.content[tab.cursor.row]
+                if (line.length > 0) {
+                    clipboard.writeText(line)
+                }
+            } else {
+                const selectionContent = subContent(
+                    tab.content,
+                    cursorSelection,
+                )
+                if (selectionContent !== null) {
+                    clipboard.writeText(selectionContent.join('\n'))
+                }
+            }
+
+            if (!msg.cut) {
+                return prevState
+            }
+
+            // At this point, the content is selected by the cursor. We remove
+            // it to implement the cut behavior.
+            const tabUpdate = removeAtCursor(tab)
+            const tabIndex = editor.activeTabIndex
+
+            return {
+                ...prevState,
+                editor: updateTab(editor, tabIndex, tabUpdate),
+            }
+        }
+
+        case 'editor-tab-content-paste': {
+            const { editor } = prevState
+
+            const tab = activeTab(editor)
+            const clipboardContent = clipboard.readText()
+
+            if (clipboardContent.length === 0 || tab === null) {
+                return prevState
+            }
+
+            const tabUpdate = insertAtCursor(tab, clipboardContent)
+            const tabIndex = editor.activeTabIndex
+
+            return {
+                ...prevState,
+                editor: updateTab(editor, tabIndex, tabUpdate),
+            }
+        }
+
         case 'editor-tab-close': {
             const { editor } = prevState
 
@@ -285,7 +353,7 @@ export function reducer(prevState: AppState, msg: Msg): AppState {
         }
 
         case 'editor-update-size': {
-            // TODO: need to ajust the scroll for each tab when editor is
+            // TODO: need to adjust the scroll for each tab when editor is
             //       resized to make the cursor always centered
             const { editor } = prevState
 

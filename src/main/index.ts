@@ -2,6 +2,7 @@ import {
     app,
     BrowserWindow,
     dialog,
+    globalShortcut,
     Menu,
     MenuItemConstructorOptions,
 } from 'electron'
@@ -35,6 +36,31 @@ app.whenReady().then(() => {
     const appMenu: MenuItemConstructorOptions[] =
         process.platform === 'darwin' ? [{ role: 'appMenu' }] : []
 
+    // TODO: refactor menu items code to use accelerators this way.
+    window.on('focus', () => {
+        globalShortcut.register('CmdOrCtrl+C', () => {
+            sendToRenderer(window, {
+                type: 'content-copy',
+                cut: false,
+            })
+        })
+        globalShortcut.register('CmdOrCtrl+X', () => {
+            sendToRenderer(window, {
+                type: 'content-copy',
+                cut: true,
+            })
+        })
+        globalShortcut.register('CmdOrCtrl+V', () => {
+            sendToRenderer(window, { type: 'content-paste' })
+        })
+    })
+
+    // Unregister all global shortcuts when the window loses focus. Otherwise it
+    // will affect other programs' shortcuts (if they are the same).
+    window.on('blur', () => {
+        globalShortcut.unregisterAll()
+    })
+
     const menu = Menu.buildFromTemplate([
         ...appMenu,
         {
@@ -42,8 +68,7 @@ app.whenReady().then(() => {
             submenu: [
                 {
                     label: 'New',
-                    accelerator:
-                        process.platform === 'darwin' ? 'Cmd+N' : 'Ctrl+N',
+                    accelerator: 'CmdOrCtrl+N',
                     click: () => {
                         sendToRenderer(window, {
                             type: 'new-tab',
@@ -53,8 +78,7 @@ app.whenReady().then(() => {
                 },
                 {
                     label: 'Open',
-                    accelerator:
-                        process.platform === 'darwin' ? 'Cmd+O' : 'Ctrl+O',
+                    accelerator: 'CmdOrCtrl+O',
                     click: () => {
                         const dialogPaths = dialog.showOpenDialogSync(window, {
                             properties: ['openFile', 'multiSelections'],
@@ -82,8 +106,7 @@ app.whenReady().then(() => {
                 },
                 {
                     label: 'Save',
-                    accelerator:
-                        process.platform === 'darwin' ? 'Cmd+S' : 'Ctrl+S',
+                    accelerator: 'CmdOrCtrl+S',
                     click: () => {
                         sendToRenderer(window, {
                             type: 'get-current-tab',
@@ -117,8 +140,7 @@ app.whenReady().then(() => {
             submenu: [
                 {
                     label: 'Undo',
-                    accelerator:
-                        process.platform === 'darwin' ? 'Cmd+Z' : 'Ctrl+Z',
+                    accelerator: 'CmdOrCtrl+Z',
                     click: () => {
                         sendToRenderer(window, {
                             type: 'content-undo-redo',
@@ -128,15 +150,39 @@ app.whenReady().then(() => {
                 },
                 {
                     label: 'Redo',
-                    accelerator:
-                        process.platform === 'darwin'
-                            ? 'Cmd+Shift+Z'
-                            : 'Ctrl+Shift+Z',
+                    accelerator: 'CmdOrCtrl+Shift+Z',
                     click: () => {
                         sendToRenderer(window, {
                             type: 'content-undo-redo',
                             op: 'redo',
                         })
+                    },
+                },
+                {
+                    type: 'separator',
+                },
+                {
+                    label: 'Cut',
+                    click: () => {
+                        sendToRenderer(window, {
+                            type: 'content-copy',
+                            cut: true,
+                        })
+                    },
+                },
+                {
+                    label: 'Copy',
+                    click: () => {
+                        sendToRenderer(window, {
+                            type: 'content-copy',
+                            cut: false,
+                        })
+                    },
+                },
+                {
+                    label: 'Paste',
+                    click: () => {
+                        sendToRenderer(window, { type: 'content-paste' })
                     },
                 },
             ],

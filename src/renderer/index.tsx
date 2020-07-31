@@ -54,6 +54,18 @@ const App = () => {
                 ipcRenderer.send('renderer-msg.content-undo-redo', null)
             },
         )
+        ipcRenderer.on(
+            'main-msg.content-copy',
+            (_e, msg: MainMsg<'content-copy'>) => {
+                dispatch({ type: 'editor-tab-content-copy', cut: msg.cut })
+            },
+        )
+        ipcRenderer.on(
+            'main-msg.content-paste',
+            (_e, _msg: MainMsg<'content-paste'>) => {
+                dispatch({ type: 'editor-tab-content-paste' })
+            },
+        )
 
         return () => {
             ipcRenderer.removeAllListeners('main-msg.new-tab')
@@ -61,8 +73,10 @@ const App = () => {
             ipcRenderer.removeAllListeners('main-msg.update-current-tab')
             ipcRenderer.removeAllListeners('main-msg.window-resized')
             ipcRenderer.removeAllListeners('main-msg.content-undo-redo')
+            ipcRenderer.removeAllListeners('main-msg.content-copy')
+            ipcRenderer.removeAllListeners('main-msg.content-paste')
         }
-    }, [])
+    }, [state])
 
     return (
         <AppStateContext.Provider value={{ state, dispatch }}>

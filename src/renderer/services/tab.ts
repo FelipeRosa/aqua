@@ -66,9 +66,7 @@ export const setCursor = (
     selecting: boolean,
 ): Tab => {
     const row = Math.min(Math.max(0, cursor.row), tab.content.length - 1)
-
-    const cursorLine = tab.content[row]
-    const column = Math.min(Math.max(0, cursor.column), cursorLine.length)
+    const column = Math.max(0, cursor.column)
 
     const newCursor: CursorWithSelection = {
         ...tab.cursor,
@@ -84,6 +82,7 @@ export const setCursor = (
     }
 
     // adjust scroll
+    const cursorLine = tab.content[row]
     const cursorSubstr = cursorLine.substr(0, newCursor.column)
 
     const cursorLeft = stringMetrics(tab.font, cursorSubstr).width

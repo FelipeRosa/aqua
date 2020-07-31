@@ -30,6 +30,15 @@ export type ContentUndoRedoMsg<T extends 'content-undo-redo'> = {
     op: 'undo' | 'redo'
 }
 
+export type ContentCopy<T extends 'content-copy'> = {
+    type: T
+    cut: boolean
+}
+
+export type ContentPaste<T extends 'content-paste'> = {
+    type: T
+}
+
 // prettier-ignore
 export type MainMsg<T> =
       T extends 'new-tab' ? NewTabMsg<T>
@@ -37,6 +46,8 @@ export type MainMsg<T> =
     : T extends 'update-current-tab' ? UpdateCurrentTabMsg<T>
     : T extends 'window-resized' ? WindowResizedMsg<T>
     : T extends 'content-undo-redo' ? ContentUndoRedoMsg<T>
+    : T extends 'content-copy' ? ContentCopy<T>
+    : T extends 'content-paste' ? ContentPaste<T>
     : never
 
 // prettier-ignore
@@ -46,6 +57,8 @@ export type RendererMsg<T> =
     : T extends 'update-current-tab' ? null
     : T extends 'window-resized' ? null
     : T extends 'content-undo-redo' ? null
+    : T extends 'content-copy' ? null
+    : T extends 'content-paste' ? null
     : never
 
 export function sendToRenderer<T>(
