@@ -17,6 +17,7 @@ export type UpdateCurrentTabMsg<T extends 'update-current-tab'> = {
     type: T
     updatedTab: Partial<{
         label: string | null
+        dirty: boolean
     }>
 }
 

@@ -12,6 +12,7 @@ export type Tab = {
     scroll: Scroll
     font: Font
     size: Size
+    dirty: boolean
     diffs: {
         done: ContentDiff[]
         undone: ContentDiff[]

@@ -83,6 +83,7 @@ export type Msg =
           index: number
           tab: Partial<{
               label: string | null
+              dirty: boolean
               content: string[]
           }>
       }

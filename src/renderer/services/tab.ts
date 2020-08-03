@@ -18,16 +18,27 @@ export const createDefaultTab = (): Tab => ({
     scroll: { x: 0, y: 0 },
     font: createDefaultFont(),
     size: { width: 0, height: 0 },
+    dirty: false,
     diffs: {
         done: [],
         undone: [],
     },
 })
 
-export const labelText = ({ label }: Tab): string =>
-    // TODO: move this to editor functions because we need to
-    //       consider the case when multiple tabs have the same basename
-    label === null ? 'Unnamed' : path.basename(label)
+// TODO: move this to editor functions because we need to
+//       consider the case when multiple tabs have the same basename
+export const labelText = (tab: Tab): string => {
+    if (tab.label === null) {
+        return 'Unnamed'
+    }
+
+    let text: string = path.basename(tab.label)
+    if (tab.dirty) {
+        text += '*'
+    }
+
+    return text
+}
 
 export const adjustedCursor = (tab: Tab): CursorWithSelection => ({
     ...tab.cursor,
@@ -134,7 +145,10 @@ export const insertAtCursor = (tab: Tab, s: string): Tab => {
     })
     newTab1.diffs.undone = []
 
-    return setCursor(newTab1, newCursor, false)
+    return {
+        ...setCursor(newTab1, newCursor, false),
+        dirty: true,
+    }
 }
 
 export const removeAtCursor = (tab: Tab): Tab => {
@@ -158,7 +172,10 @@ export const removeAtCursor = (tab: Tab): Tab => {
         }
     }
 
-    return setCursor(newTab, newCursor, false)
+    return {
+        ...setCursor(newTab, newCursor, false),
+        dirty: true,
+    }
 }
 
 export const undoRedo = (tab: Tab, op: 'undo' | 'redo'): Tab => {
@@ -189,13 +206,16 @@ export const undoRedo = (tab: Tab, op: 'undo' | 'redo'): Tab => {
 
     const [newContent, newCursor] = applyDiff(tab.content, inverseDiff)
 
-    return setCursor(
-        {
-            ...tab,
-            content: newContent,
-            diffs: newDiffs,
-        },
-        newCursor,
-        false,
-    )
+    return {
+        ...setCursor(
+            {
+                ...tab,
+                content: newContent,
+                diffs: newDiffs,
+            },
+            newCursor,
+            false,
+        ),
+        dirty: true,
+    }
 }

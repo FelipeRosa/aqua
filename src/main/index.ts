@@ -127,7 +127,10 @@ app.whenReady().then(() => {
 
                                 sendToRenderer(window, {
                                     type: 'update-current-tab',
-                                    updatedTab: { label: filePath },
+                                    updatedTab: {
+                                        label: filePath,
+                                        dirty: false,
+                                    },
                                 })
                             }
                         })
