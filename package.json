@@ -16,7 +16,7 @@
     "author": "Felipe Soares Gonçalves Rosa",
     "license": "MIT",
     "dependencies": {
-        "electron": "^9.0.5",
+        "electron": "^9.3.1",
         "react": "^16.13.1",
         "react-dom": "^16.13.1"
     },
